@@ -179,3 +179,20 @@ int remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight) {
 
 	return (success);
 }
+
+bool print_nodes(node* nodes, int size) {
+	int i;
+	int printf_result;
+
+	printf_result = printf("%d nodes:\n", size);
+
+	for(i = 0; i < size && printf_result >= 0; i++) {
+		printf_result = printf("%d: %s\n", nodes[i].id, nodes[i].name);
+	}
+
+	if (printf_result < 0) {
+		perror(ERROR_PRINTF);
+		return FALSE;
+	}
+	return TRUE;
+}

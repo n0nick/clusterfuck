@@ -28,4 +28,6 @@ bool remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWe
 bool add_one_edge(node* nodeFrom, node* nodeTo, double weight);
 bool remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight);
 
+bool print_nodes(node* nodes, int size);
+
 #endif
