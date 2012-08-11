@@ -43,5 +43,8 @@ int main(int argc, char* argv[]) {
 
 	/*TODO debug*/
 	printf("in: %s\nout: %s\nlow: %d up: %d\n", inputFolder, outputFolder, lowerBound, upperBound);
+
+	read_data(inputFolder);
+
 	return 0;
 }
