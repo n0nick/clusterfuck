@@ -16,8 +16,11 @@ all: kcluster
 clean:
 	rm cluster.o kcluster
 
-kcluster: cluster.o 
-	gcc -o kcluster cluster.o $(CFLAGS) $(LDFLAGS)
+kcluster: main.o cluster.o
+	gcc -o kcluster main.o cluster.o $(CFLAGS) $(LDFLAGS)
+
+main.o: main.c
+	gcc -c main.c $(CFLAGS)
 
 cluster.o: cluster.h cluster.c
 	gcc -c cluster.c $(CFLAGS)
