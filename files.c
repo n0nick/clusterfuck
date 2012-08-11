@@ -11,17 +11,17 @@
 #include "files.h"
 
 /* Methods */
-int read_data(char* inputFolder) {
+bool read_data(char* inputFolder) {
 	bool success;
 	success = read_nodes(strcat(inputFolder, "nodes"));
 	success = read_edges(strcat(inputFolder, "edges")) && success;
 	return success;
 }
-int read_nodes(char* nodesPath) {
+bool read_nodes(char* nodesPath) {
 	extern node* nodes;
 	return 0;
 }
-int read_edges(char* edgesPath) {
+bool read_edges(char* edgesPath) {
 	extern edge* edges;
 	return 0;
 }

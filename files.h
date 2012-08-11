@@ -12,8 +12,8 @@
 #define NODE_PREFIX protein
 #define EDGE_PREFIX interaction
 
-int read_data(char* inputFolder);
-int read_nodes(char* nodesPath);
-int read_edges(char* edgesPath);
+bool read_data(char* inputFolder);
+bool read_nodes(char* nodesPath);
+bool read_edges(char* edgesPath);
 
 #endif
