@@ -5,6 +5,12 @@
  *      Author: amirmoua
  */
 
+#include "vertex.h"
+
+/* Global variables */
+
+/* main */
 int main(int argc, char* argv[]) {
+
 	return 0;
 }
