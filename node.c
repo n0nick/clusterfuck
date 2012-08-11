@@ -4,7 +4,7 @@
 #include "node.h"
 #include "consts.h"
 
-node* add_vertex(node* currentArray, int* size, int* maxSize, char* name, int* success) {
+node* add_node(node* currentArray, int* size, int* maxSize, char* name, int* success) {
 	node* newArray;
 	int i;
 	int failIndex;
@@ -13,7 +13,7 @@ node* add_vertex(node* currentArray, int* size, int* maxSize, char* name, int* s
 
 	if((*size) >= (*maxSize)) {
 		/* re-allocate memory */
-		(*maxSize) = (*maxSize) * VERTEX_ARRAY_SIZE_FACTOR;
+		(*maxSize) = (*maxSize) * NODE_ARRAY_SIZE_FACTOR;
 		newArray = (node *) malloc((*maxSize) * sizeof(node));
 		if (newArray == NULL) {
 			perror(ERROR_MALLOC);
@@ -73,16 +73,16 @@ node* add_vertex(node* currentArray, int* size, int* maxSize, char* name, int* s
 	return currentArray;
 }
 
-void print_vertices(node* vertices, int size, int* success) {
+void print_nodes(node* nodes, int size, int* success) {
 	int i;
 	int printf_result;
 
 	*success = SUCCESS;
 
-	printf_result = printf("%d vertices:\n", size);
+	printf_result = printf("%d nodes:\n", size);
 
 	for(i = 0; i < size && printf_result >= 0; i++) {
-		printf_result = printf("%d: %s\n", vertices[i].id, vertices[i].name);
+		printf_result = printf("%d: %s\n", nodes[i].id, nodes[i].name);
 	}
 
 	if (printf_result < 0) {
@@ -91,7 +91,7 @@ void print_vertices(node* vertices, int size, int* success) {
 	}
 }
 
-void print_edges(node* vertices, int size, int* success) {
+void print_edges(node* nodes, int size, int* success) {
 	int i;
 	edge* currEdge;
 	int printf_result;
@@ -101,10 +101,10 @@ void print_edges(node* vertices, int size, int* success) {
 	printf_result = printf("edges:\n");
 
 	for(i = 0; i < size && printf_result >= 0; i++) {
-		currEdge = vertices[i].edges;
+		currEdge = nodes[i].edges;
 		while(currEdge != NULL && printf_result >= 0) {
-			if (i < currEdge->vertexID) { /* to conform with supplied tests */
-				printf_result = printf("%s %s %f\n", vertices[currEdge->vertexID].name, vertices[i].name, currEdge->weight);
+			if (i < currEdge->nodeID) { /* to conform with supplied tests */
+				printf_result = printf("%s %s %f\n", nodes[currEdge->nodeID].name, nodes[i].name, currEdge->weight);
 			}
 			currEdge = currEdge->next;
 		}
@@ -116,16 +116,16 @@ void print_edges(node* vertices, int size, int* success) {
 	}
 }
 
-void print_degree(node* vertices, int id, int* success) {
+void print_degree(node* nodes, int id, int* success) {
 	*success = SUCCESS;
 
-	if (printf("%d\n", vertices[id].degree) < 0) {
+	if (printf("%d\n", nodes[id].degree) < 0) {
 		perror(ERROR_PRINTF);
 		*success = FAILURE;
 	}
 }
 
-void print_by_name(node* vertices, char* name, int size, int* success) {
+void print_by_name(node* nodes, char* name, int size, int* success) {
 	int i;
 	int printf_result = 0;
 	bool found = FALSE;
@@ -133,15 +133,15 @@ void print_by_name(node* vertices, char* name, int size, int* success) {
 	*success = SUCCESS;
 
 	for (i = 0;  i < size && printf_result >= 0; i++) {
-		if (strcmp(vertices[i].name, name) == 0) {
-			printf_result = printf("%d\n", vertices[i].id);
+		if (strcmp(nodes[i].name, name) == 0) {
+			printf_result = printf("%d\n", nodes[i].id);
 			found = TRUE;
 		}
 	}
 
 	if (printf_result >= 0) {
 		if(found == FALSE) {
-			printf_result = printf("Error: vertex name is not in the system\n");
+			printf_result = printf("Error: node name is not in the system\n");
 		}
 	}
 
@@ -151,7 +151,7 @@ void print_by_name(node* vertices, char* name, int size, int* success) {
 	}
 }
 
-void add_edge(node* vertices, int id1, int id2, double weight, int* countEdges, double* totalWeights, int* success) {
+void add_edge(node* nodes, int id1, int id2, double weight, int* countEdges, double* totalWeights, int* success) {
 
 	bool valid;
 	node* v1;
@@ -162,25 +162,25 @@ void add_edge(node* vertices, int id1, int id2, double weight, int* countEdges, 
 	*success = SUCCESS;
 	valid = TRUE;
 
-	/* no edges between the same vertex */
+	/* no edges between the same node */
 	if (id1 == id2) {
-		printf_result = printf("Error: edge must be between two different vertices\n");
+		printf_result = printf("Error: edge must be between two different nodes\n");
 		valid = FALSE;
 	}
 
 	if (valid == TRUE && printf_result >= 0) {
-		v1 = &(vertices[id1]);
-		v2 = &(vertices[id2]);
+		v1 = &(nodes[id1]);
+		v2 = &(nodes[id2]);
 
-		/* check to see if vertex already exists */
+		/* check to see if node already exists */
 		if (v1->degree < v2->degree) {
 			currEdge = v1->edges;
 		} else {
 			currEdge = v2->edges;
 		}
 		while (currEdge != NULL && printf_result >= 0) {
-			if ((currEdge->vertexID == v1->id) ||
-				(currEdge->vertexID == v2->id)) {
+			if ((currEdge->nodeID == v1->id) ||
+				(currEdge->nodeID == v2->id)) {
 					printf_result = printf("Error: edge is in the graph\n");
 					valid = FALSE;
 			}
@@ -208,7 +208,7 @@ void add_edge(node* vertices, int id1, int id2, double weight, int* countEdges, 
 	}
 }
 
-void add_one_edge(node* vertexFrom, node* vertexTo, double weight, int* success) {
+void add_one_edge(node* nodeFrom, node* nodeTo, double weight, int* success) {
 	edge* currEdge;
 	edge* newEdge;
 
@@ -217,18 +217,18 @@ void add_one_edge(node* vertexFrom, node* vertexTo, double weight, int* success)
 	/* build new edge */
 	newEdge = (edge*) malloc(sizeof(edge));
 	if (newEdge != NULL) {
-		newEdge->vertexID = vertexTo->id;
+		newEdge->nodeID = nodeTo->id;
 		newEdge->weight = weight;
 		newEdge->prev = NULL;
 
-		currEdge = vertexFrom->edges;
+		currEdge = nodeFrom->edges;
 		if(currEdge == NULL) { /* first edge */
 			newEdge->next = NULL;
-			vertexFrom->edges = newEdge;
+			nodeFrom->edges = newEdge;
 		} else { /* attach to edges list */
 			newEdge->next = currEdge;
 			currEdge->prev = newEdge;
-			vertexFrom->edges = newEdge;
+			nodeFrom->edges = newEdge;
 		}
 	} else {
 		perror(ERROR_MALLOC);
@@ -236,7 +236,7 @@ void add_one_edge(node* vertexFrom, node* vertexTo, double weight, int* success)
 	}
 }
 
-void remove_edge(node* vertices, int id1, int id2, int* countEdges, double* totalWeights, int* success) {
+void remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWeights, int* success) {
 	
 	bool removed;
 	double removedWeight;
@@ -245,8 +245,8 @@ void remove_edge(node* vertices, int id1, int id2, int* countEdges, double* tota
 
 	*success = SUCCESS;
 
-	v1 = &(vertices[id1]);
-	v2 = &(vertices[id2]);
+	v1 = &(nodes[id1]);
+	v2 = &(nodes[id2]);
 
 	removed = ((remove_one_edge(v1, v2, &removedWeight)) && (remove_one_edge(v2, v1, &removedWeight)));
 
@@ -264,19 +264,19 @@ void remove_edge(node* vertices, int id1, int id2, int* countEdges, double* tota
 	}
 }
 
-int remove_one_edge(node* vertexFrom, node* vertexTo, double* removedWeight) {
+int remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight) {
 
 	bool didDelete;
 	edge* currEdge;
 	didDelete = FALSE;
 
-	currEdge = vertexFrom->edges;
+	currEdge = nodeFrom->edges;
 	while((currEdge != NULL) && (!didDelete)) {
-		if(currEdge->vertexID == vertexTo->id) {
+		if(currEdge->nodeID == nodeTo->id) {
 
 			/* first */
 			if(currEdge->prev == NULL) {
-				vertexFrom->edges = currEdge->next;
+				nodeFrom->edges = currEdge->next;
 				if(currEdge->next != NULL) { /* first but not last */
 					currEdge->next->prev = NULL;
 				}
