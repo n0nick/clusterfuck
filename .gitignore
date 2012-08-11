@@ -10,3 +10,8 @@
 *.lai
 *.la
 *.a
+
+# Eclipse generated files
+.project
+.cproject
+Debug
