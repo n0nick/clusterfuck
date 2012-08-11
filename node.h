@@ -1,6 +1,8 @@
 #ifndef nodeFUCK
 #define nodeFUCK
 
+#include "consts.h"
+
 #define NODE_ARRAY_SIZE_FACTOR 2
 
 typedef struct edge edge;
@@ -20,10 +22,10 @@ struct node {
 	edge* edges;
 };
 
-node* add_node(node* currentArray, int* size, int* maxSize, char* name, int* success);
-void add_edge(node* nodes, int id1, int id2, double weight, int* countEdges, double* totalWeights, int* success);
-void remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWeights, int* success);
-void add_one_edge(node* nodeFrom, node* nodeTo, double weight, int* success);
-int remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight);
+bool add_node(int index, char* name);
+bool add_edge(int id1, int id2, double weight, int* countEdges, double* totalWeights);
+bool remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWeights);
+bool add_one_edge(node* nodeFrom, node* nodeTo, double weight);
+bool remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight);
 
 #endif

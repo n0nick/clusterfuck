@@ -4,84 +4,33 @@
 #include "node.h"
 #include "consts.h"
 
-node* add_node(node* currentArray, int* size, int* maxSize, char* name, int* success) {
-	node* newArray;
-	int i;
-	int failIndex;
+bool add_node(int index, char* name) {
+	extern node* nodes;
 
-	*success = SUCCESS;
-
-	if((*size) >= (*maxSize)) {
-		/* re-allocate memory */
-		(*maxSize) = (*maxSize) * NODE_ARRAY_SIZE_FACTOR;
-		newArray = (node *) malloc((*maxSize) * sizeof(node));
-		if (newArray == NULL) {
-			perror(ERROR_MALLOC);
-			*success = FAILURE;
-		}
-
-		/* copy current content */
-		for(i = 0; i < (*size) && *success; i++) {
-			newArray[i].degree = currentArray[i].degree;
-			newArray[i].edges = currentArray[i].edges;
-			newArray[i].id = currentArray[i].id;
-			newArray[i].name = (char *) malloc(strlen(currentArray[i].name) + 1);
-			if (newArray[i].name == NULL) {
-				perror(ERROR_MALLOC);
-				failIndex = i;
-				*success = FAILURE;
-			} else {
-				strcpy(newArray[i].name, currentArray[i].name);
-				free(currentArray[i].name);
-			}
-		}
-
-		if (*success) {
-			/* releasing old memory */
-			free(currentArray);
-		}
-	} else {
-		newArray = currentArray;
+	nodes[index].id = index;
+	nodes[index].degree = 0;
+	nodes[index].edges = NULL;
+	nodes[index].name = (char *) malloc(strlen(name) + 1);
+	if (nodes[index].name == NULL) {
+		perror(ERROR_MALLOC);
+		return FALSE;
 	}
+	strcpy(nodes[index].name, name);
 
-	if (*success == SUCCESS) {
-		/* initializing values */
-		newArray[*size].id = *size;
-		newArray[*size].degree = 0;
-		newArray[*size].edges = NULL;
-		newArray[*size].name = (char *) malloc(strlen(name) + 1);
-		if (newArray[*size].name == NULL) {
-			perror(ERROR_MALLOC);
-			failIndex = *size;
-			*success = FAILURE;
-		}
-		strcpy(newArray[*size].name, name);
-		(*size)++;
-
-		currentArray = newArray;
-	}
-
-	if (*success == FAILURE) {
-		if (newArray != NULL) {
-			for (i = 0; i < failIndex; i++) {
-				free(newArray[i].name);
-			}
-			free(newArray);
-		}
-	}
-
-	return currentArray;
+	return TRUE;
 }
 
-void add_edge(node* nodes, int id1, int id2, double weight, int* countEdges, double* totalWeights, int* success) {
+bool add_edge(int id1, int id2, double weight, int* countEdges, double* totalWeights) {
+
+	extern node* nodes;
 
 	bool valid;
 	node* v1;
 	node* v2;
 	edge* currEdge;
 	int printf_result = 0;
+	bool success = TRUE;
 
-	*success = SUCCESS;
 	valid = TRUE;
 
 	/* no edges between the same node */
@@ -112,10 +61,10 @@ void add_edge(node* nodes, int id1, int id2, double weight, int* countEdges, dou
 
 	if (printf_result >= 0) {
 		if (valid == TRUE) {
-			add_one_edge(v1, v2, weight, success);
-			if (*success) {
-				add_one_edge(v2, v1, weight, success);
-				if (*success) {
+			success = add_one_edge(v1, v2, weight);
+			if (success) {
+				success = add_one_edge(v2, v1, weight);
+				if (success) {
 					/* count edge */
 					*countEdges = *countEdges + 1;
 					*totalWeights = *totalWeights + weight;
@@ -126,15 +75,15 @@ void add_edge(node* nodes, int id1, int id2, double weight, int* countEdges, dou
 		}
 	} else {
 		perror(ERROR_PRINTF);
-		*success = FAILURE;
+		success = FALSE;
 	}
+
+	return success;
 }
 
-void add_one_edge(node* nodeFrom, node* nodeTo, double weight, int* success) {
+bool add_one_edge(node* nodeFrom, node* nodeTo, double weight) {
 	edge* currEdge;
 	edge* newEdge;
-
-	*success = SUCCESS;
 
 	/* build new edge */
 	newEdge = (edge*) malloc(sizeof(edge));
@@ -154,18 +103,17 @@ void add_one_edge(node* nodeFrom, node* nodeTo, double weight, int* success) {
 		}
 	} else {
 		perror(ERROR_MALLOC);
-		*success = FAILURE;
+		return FALSE;
 	}
+
+	return TRUE;
 }
 
-void remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWeights, int* success) {
-	
+bool remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWeights) {
 	bool removed;
 	double removedWeight;
 	node* v1;
 	node* v2;
-
-	*success = SUCCESS;
 
 	v1 = &(nodes[id1]);
 	v2 = &(nodes[id2]);
@@ -175,7 +123,7 @@ void remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWe
 	if(!removed) {
 		if (printf("Error: edge is not in the graph\n") < 0) {
 			perror(ERROR_PRINTF);
-			*success = FAILURE;
+			return FALSE;
 		}
 	} else {
 		/* count edge */
@@ -184,16 +132,17 @@ void remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWe
 		v1->degree--;
 		v2->degree--;
 	}
+
+	return TRUE;
 }
 
 int remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight) {
-
-	bool didDelete;
+	bool success;
 	edge* currEdge;
-	didDelete = FALSE;
+	success = FALSE;
 
 	currEdge = nodeFrom->edges;
-	while((currEdge != NULL) && (!didDelete)) {
+	while((currEdge != NULL) && (!success)) {
 		if(currEdge->nodeID == nodeTo->id) {
 
 			/* first */
@@ -215,18 +164,18 @@ int remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight) {
 				currEdge->next->prev = currEdge->prev;
 			}
 
-			didDelete = TRUE;
+			success = TRUE;
 		}
 
-		if(!didDelete) {
+		if(!success) {
 			currEdge = currEdge->next;
 		}
 	}
 
-	if(didDelete) {
+	if(success) {
 		*removedWeight = currEdge->weight;
 		free(currEdge);
 	}
 
-	return (didDelete);
+	return (success);
 }
