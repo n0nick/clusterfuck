@@ -16,7 +16,7 @@ all: kcluster
 clean:
 	rm cluster.o kcluster main.o files.o node.o
 
-kcluster: main.o cluster.o
+kcluster: main.o cluster.o node.o files.o
 	gcc -o kcluster main.o cluster.o node.o files.o $(CFLAGS) $(LDFLAGS)
 
 main.o: main.c
