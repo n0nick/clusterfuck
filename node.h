@@ -9,7 +9,7 @@
 #define MAX_TOTAL_WEIGHTS 1000
 
 typedef struct edge edge;
-typedef struct vertex vertex;
+typedef struct vertex node;
 
 struct edge {
 	unsigned int vertexID;
@@ -25,15 +25,15 @@ struct vertex {
 	edge* edges;
 };
 
-vertex* add_vertex(vertex* currentArray, int* size, int* maxSize, char* name, int* success);
-void print_vertices(vertex* vertices, int size, int* success);
-void print_edges(vertex* vertices, int size, int* success);
-void print_degree(vertex* vertices, int id, int* success);
-void print_by_name(vertex* vertices, char* name, int size, int* success);
+node* add_vertex(node* currentArray, int* size, int* maxSize, char* name, int* success);
+void print_vertices(node* vertices, int size, int* success);
+void print_edges(node* vertices, int size, int* success);
+void print_degree(node* vertices, int id, int* success);
+void print_by_name(node* vertices, char* name, int size, int* success);
 
-void add_edge(vertex* vertices, int id1, int id2, double weight, int* countEdges, double* totalWeights, int* success);
-void remove_edge(vertex* vertices, int id1, int id2, int* countEdges, double* totalWeights, int* success);
-void add_one_edge(vertex* vertexFrom, vertex* vertexTo, double weight, int* success);
-int remove_one_edge(vertex* vertexFrom, vertex* vertexTo, double* removedWeight);
+void add_edge(node* vertices, int id1, int id2, double weight, int* countEdges, double* totalWeights, int* success);
+void remove_edge(node* vertices, int id1, int id2, int* countEdges, double* totalWeights, int* success);
+void add_one_edge(node* vertexFrom, node* vertexTo, double weight, int* success);
+int remove_one_edge(node* vertexFrom, node* vertexTo, double* removedWeight);
 
 #endif
