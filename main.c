@@ -5,12 +5,14 @@
  *      Author: amirmoua
  */
 
-#include "vertex.h"
+#include <stdio.h>
+#include "node.h"
+
 
 /* Global variables */
 
 /* main */
 int main(int argc, char* argv[]) {
-
+	printf("derp");
 	return 0;
 }

@@ -14,13 +14,19 @@ LDFLAGS+= -lxml2
 all: kcluster
 
 clean:
-	rm cluster.o kcluster
+	rm cluster.o kcluster main.o files.o node.o
 
 kcluster: main.o cluster.o
-	gcc -o kcluster main.o cluster.o $(CFLAGS) $(LDFLAGS)
+	gcc -o kcluster main.o cluster.o node.o files.o $(CFLAGS) $(LDFLAGS)
 
 main.o: main.c
 	gcc -c main.c $(CFLAGS)
 
 cluster.o: cluster.h cluster.c
 	gcc -c cluster.c $(CFLAGS)
+	
+node.o: node.h node.c
+	gcc -c node.c $(CFLAGS)
+	
+files.o: files.h files.c
+	gcc -c files.c $(CFLAGS)
