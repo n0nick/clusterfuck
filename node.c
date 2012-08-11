@@ -33,30 +33,22 @@ bool add_edge(int id1, int id2, double weight, int* countEdges, double* totalWei
 
 	valid = TRUE;
 
-	/* no edges between the same node */
-	if (id1 == id2) {
-		printf_result = printf("Error: edge must be between two different nodes\n");
-		valid = FALSE;
+	v1 = &(nodes[id1]);
+	v2 = &(nodes[id2]);
+
+	/* check to see if node already exists */
+	if (v1->degree < v2->degree) {
+		currEdge = v1->edges;
+	} else {
+		currEdge = v2->edges;
 	}
-
-	if (valid == TRUE && printf_result >= 0) {
-		v1 = &(nodes[id1]);
-		v2 = &(nodes[id2]);
-
-		/* check to see if node already exists */
-		if (v1->degree < v2->degree) {
-			currEdge = v1->edges;
-		} else {
-			currEdge = v2->edges;
+	while (currEdge != NULL && printf_result >= 0) {
+		if ((currEdge->nodeID == v1->id) ||
+			(currEdge->nodeID == v2->id)) {
+				printf_result = printf("Error: edge is in the graph\n");
+				valid = FALSE;
 		}
-		while (currEdge != NULL && printf_result >= 0) {
-			if ((currEdge->nodeID == v1->id) ||
-				(currEdge->nodeID == v2->id)) {
-					printf_result = printf("Error: edge is in the graph\n");
-					valid = FALSE;
-			}
-			currEdge = currEdge->next;
-		}
+		currEdge = currEdge->next;
 	}
 
 	if (printf_result >= 0) {
