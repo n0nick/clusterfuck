@@ -19,5 +19,8 @@ Debug
 # App binaries
 kcluster
 
+# App data
+data
+
 # CPLEX generated logs
 cplex.log
