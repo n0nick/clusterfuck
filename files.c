@@ -15,16 +15,28 @@
 /* Methods */
 bool read_data(char* inputFolder) {
 	bool success;
-	success = read_nodes(strcat(inputFolder, "nodes"));
-	success = read_edges(strcat(inputFolder, "edges")) && success;
+
+	char* nodesPath;
+	char* edgesPath;
+	nodesPath = (char*)malloc(strlen(inputFolder) + 5 + 1);
+	edgesPath = (char*)malloc(strlen(inputFolder) + 5 + 1);
+	strcpy(nodesPath, inputFolder);
+	strcpy(edgesPath, inputFolder);
+
+	success = read_nodes(strcat(nodesPath, "nodes"));
+	success = success && read_edges(strcat(edgesPath, "edges"));
+
+	print_nodes();
+	print_edges();
+
 	return success;
 }
 bool read_nodes(char* nodesPath) {
 	extern node* nodes;
+	extern int nodesCount;
 
 	FILE * fp;
 	char ch;
-	int count = 0;
 	int i = 0;
 	char name [MAX_LINE_LENGTH];
 
@@ -39,13 +51,13 @@ bool read_nodes(char* nodesPath) {
 	ch = getc(fp);
 	while (ch != EOF) {
 		if (ch == '\n') {
-			count++;
+			nodesCount++;
 		}
 		ch = getc(fp);
 	}
 
 	/* Initialize nodes array */
-	nodes = (node*) malloc(count * sizeof(node));
+	nodes = (node*) malloc(nodesCount * sizeof(node));
 
 	/* Loop through lines, adding nodes */
 	rewind(fp);
@@ -53,11 +65,53 @@ bool read_nodes(char* nodesPath) {
 		add_node(i++, name);
 	}
 
-	print_nodes(nodes, count);
-
 	return TRUE;
 }
 bool read_edges(char* edgesPath) {
-	extern edge* edges;
-	return 0;
+	extern node* nodes;
+	char name1 [MAX_LINE_LENGTH];
+	char name2 [MAX_LINE_LENGTH];
+	char names [MAX_LINE_LENGTH];
+	int idx1;
+	int idx2;
+	float weight;
+	bool success = TRUE;
+	FILE * fp;
+
+	/* open file */
+	fp = fopen(edgesPath, "r");
+	if (fp == NULL) {
+		perror("Error: Input file not readable.\n");
+		return FALSE;
+	}
+
+	/* Loop through lines, adding nodes */
+	while (success && (fscanf(fp, "interaction: %s %f\n", names, &weight) == 2)) {
+		success = split_names(names, name1, name2);
+		if(success && lookup_node(name1, &idx1) && lookup_node(name2, &idx2)) {
+			success = add_edge(idx1, idx2, weight);
+		}
+	}
+
+
+	return success;
+}
+
+bool split_names(char* names, char* name1, char* name2) {
+	int i;
+	int delimPos = -1;
+
+	for (i=0; i<strlen(names); i++) {
+		if (names[i] == EDGE_DELIMETER) {
+			delimPos = i;
+		} else {
+			if (delimPos == -1) {
+				name1[i] = names[i];
+			} else {
+				name2[i - delimPos - 1] = names[i];
+			}
+		}
+	}
+
+	return (strlen(name1) && strlen(name2));
 }
