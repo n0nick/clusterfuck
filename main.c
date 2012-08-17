@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "node.h"
 #include "files.h"
+#include "reduction.h"
 
 /* Global variables */
 node* nodes = NULL;
@@ -21,6 +22,9 @@ int main(int argc, char* argv[]) {
 	char *outputFolder;
 	int lowerBound;
 	int upperBound;
+
+	int k;
+	double** coeffs = NULL;
 
 	/* parse arguments */
 	if (argc != 5) {
@@ -46,6 +50,12 @@ int main(int argc, char* argv[]) {
 	printf("in: %s\nout: %s\nlow: %d up: %d\n", inputFolder, outputFolder, lowerBound, upperBound);
 
 	read_data(inputFolder);
+
+	for (k = lowerBound; k <= upperBound; k++) {
+		lp_objective_function_coefficients(k, coeffs);
+
+		/* TODO free stuff */
+	}
 
 	return 0;
 }

@@ -16,8 +16,8 @@ all: kcluster
 clean:
 	rm cluster.o kcluster main.o files.o node.o
 
-kcluster: main.o cluster.o node.o files.o
-	gcc -o kcluster main.o cluster.o node.o files.o $(CFLAGS) $(LDFLAGS)
+kcluster: main.o cluster.o node.o files.o reduction.o
+	gcc -o kcluster main.o cluster.o node.o files.o reduction.o $(CFLAGS) $(LDFLAGS)
 
 main.o: main.c
 	gcc -c main.c $(CFLAGS)
@@ -30,3 +30,6 @@ node.o: node.h node.c
 	
 files.o: files.h files.c
 	gcc -c files.c $(CFLAGS)
+	
+reduction.o: reduction.h reduction.c
+	gcc -c reduction.c $(CFLAGS)
