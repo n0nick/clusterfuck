@@ -44,10 +44,9 @@ bool add_edge(int id1, int id2, double weight) {
 		currEdge = v2->edges;
 	}
 	while (currEdge != NULL && printf_result >= 0) {
-		if ((currEdge->nodeID == v1->id) ||
-			(currEdge->nodeID == v2->id)) {
-				printf_result = printf("Error: edge is in the graph\n");
-				valid = FALSE;
+		if ((currEdge->nodeTo == v1->id) || (currEdge->nodeTo == v2->id)) {
+			printf_result = printf("Error: edge is in the graph\n");
+			valid = FALSE;
 		}
 		currEdge = currEdge->next;
 	}
@@ -83,12 +82,13 @@ bool add_one_edge(node* nodeFrom, node* nodeTo, double weight) {
 	/* build new edge */
 	newEdge = (edge*) malloc(sizeof(edge));
 	if (newEdge != NULL) {
-		newEdge->nodeID = nodeTo->id;
+		newEdge->nodeFrom = nodeFrom->id;
+		newEdge->nodeTo = nodeTo->id;
 		newEdge->weight = weight;
 		newEdge->prev = NULL;
 
 		currEdge = nodeFrom->edges;
-		if(currEdge == NULL) { /* first edge */
+		if (currEdge == NULL) { /* first edge */
 			newEdge->next = NULL;
 			nodeFrom->edges = newEdge;
 		} else { /* attach to edges list */
@@ -113,9 +113,10 @@ bool remove_edge(node* nodes, int id1, int id2) {
 	v1 = &(nodes[id1]);
 	v2 = &(nodes[id2]);
 
-	removed = ((remove_one_edge(v1, v2, &removedWeight)) && (remove_one_edge(v2, v1, &removedWeight)));
+	removed = ((remove_one_edge(v1, v2, &removedWeight)) && (remove_one_edge(
+			v2, v1, &removedWeight)));
 
-	if(!removed) {
+	if (!removed) {
 		if (printf("Error: edge is not in the graph\n") < 0) {
 			perror(ERROR_PRINTF);
 			return FALSE;
@@ -135,19 +136,19 @@ int remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight) {
 	success = FALSE;
 
 	currEdge = nodeFrom->edges;
-	while((currEdge != NULL) && (!success)) {
-		if(currEdge->nodeID == nodeTo->id) {
+	while ((currEdge != NULL) && (!success)) {
+		if (currEdge->nodeTo == nodeTo->id) {
 
 			/* first */
-			if(currEdge->prev == NULL) {
+			if (currEdge->prev == NULL) {
 				nodeFrom->edges = currEdge->next;
-				if(currEdge->next != NULL) { /* first but not last */
+				if (currEdge->next != NULL) { /* first but not last */
 					currEdge->next->prev = NULL;
 				}
 			}
 
 			/* last */
-			else if(currEdge->next == NULL) {
+			else if (currEdge->next == NULL) {
 				currEdge->prev->next = NULL;
 			}
 
@@ -160,12 +161,12 @@ int remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight) {
 			success = TRUE;
 		}
 
-		if(!success) {
+		if (!success) {
 			currEdge = currEdge->next;
 		}
 	}
 
-	if(success) {
+	if (success) {
 		*removedWeight = currEdge->weight;
 		free(currEdge);
 	}
@@ -178,8 +179,8 @@ bool lookup_node(char* name, int* idx) {
 	extern int nodesCount;
 	int i;
 
-	for(i=0;i<nodesCount;i++) {
-		if(strcmp(name, (nodes[i]).name) == 0) {
+	for (i = 0; i < nodesCount; i++) {
+		if (strcmp(name, (nodes[i]).name) == 0) {
 			*idx = i;
 			return TRUE;
 		}
@@ -196,7 +197,7 @@ bool print_nodes() {
 
 	printf_result = printf("%d nodes:\n", nodesCount);
 
-	for(i = 0; i < nodesCount && printf_result >= 0; i++) {
+	for (i = 0; i < nodesCount && printf_result >= 0; i++) {
 		printf_result = printf("%d: %s\n", nodes[i].id, nodes[i].name);
 	}
 
@@ -218,11 +219,13 @@ bool print_edges() {
 
 	printf_result = printf("edges:\n");
 
-	for(i = 0; i < nodesCount && printf_result >= 0; i++) {
+	for (i = 0; i < nodesCount && printf_result >= 0; i++) {
 		currEdge = nodes[i].edges;
-		while(currEdge != NULL && printf_result >= 0) {
-			if (i < currEdge->nodeID) { /* to conform with supplied tests */
-				printf_result = printf("%s %s %f\n", nodes[currEdge->nodeID].name, nodes[i].name, currEdge->weight);
+		while (currEdge != NULL && printf_result >= 0) {
+			if (i < currEdge->nodeTo) { /* to conform with supplied tests */
+				printf_result = printf("%s %s %f\n",
+						nodes[currEdge->nodeTo].name, nodes[currEdge->nodeFrom].name,
+						currEdge->weight);
 			}
 			currEdge = currEdge->next;
 		}

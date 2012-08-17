@@ -9,7 +9,8 @@ typedef struct edge edge;
 typedef struct node node;
 
 struct edge {
-	unsigned int nodeID;
+	unsigned int nodeFrom;
+	unsigned int nodeTo;
 	double weight;
 	edge* next;
 	edge* prev;
