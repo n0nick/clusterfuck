@@ -17,6 +17,8 @@ bool read_data(char* inputFolder);
 bool read_nodes(char* nodesPath);
 bool read_edges(char* edgesPath);
 
+/* helper functions */
+bool file_lines_count(FILE * fp, int* count);
 bool split_names(char* names, char* name1, char* name2);
 
 #endif

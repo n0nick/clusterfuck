@@ -36,7 +36,6 @@ bool read_nodes(char* nodesPath) {
 	extern int nodesCount;
 
 	FILE * fp;
-	char ch;
 	int i = 0;
 	char name [MAX_LINE_LENGTH];
 
@@ -48,19 +47,12 @@ bool read_nodes(char* nodesPath) {
 	}
 
 	/* figure out number of nodes in file */
-	ch = getc(fp);
-	while (ch != EOF) {
-		if (ch == '\n') {
-			nodesCount++;
-		}
-		ch = getc(fp);
-	}
+	file_lines_count(fp, &nodesCount);
 
 	/* Initialize nodes array */
 	nodes = (node*) malloc(nodesCount * sizeof(node));
 
 	/* Loop through lines, adding nodes */
-	rewind(fp);
 	while (fscanf(fp, "protein: %s\n", name) == 1) {
 		add_node(i++, name);
 	}
@@ -68,7 +60,8 @@ bool read_nodes(char* nodesPath) {
 	return TRUE;
 }
 bool read_edges(char* edgesPath) {
-	extern node* nodes;
+	extern int edgesCount;
+
 	char name1 [MAX_LINE_LENGTH];
 	char name2 [MAX_LINE_LENGTH];
 	char names [MAX_LINE_LENGTH];
@@ -85,6 +78,9 @@ bool read_edges(char* edgesPath) {
 		return FALSE;
 	}
 
+	/* figure out number of edges in file */
+	file_lines_count(fp, &edgesCount);
+
 	/* Loop through lines, adding nodes */
 	while (success && (fscanf(fp, "interaction: %s %f\n", names, &weight) == 2)) {
 		success = split_names(names, name1, name2);
@@ -93,8 +89,24 @@ bool read_edges(char* edgesPath) {
 		}
 	}
 
-
 	return success;
+}
+
+bool file_lines_count(FILE * fp, int* count) {
+	/* TODO rescue file failure */
+	char ch;
+
+	rewind(fp);
+	ch = getc(fp);
+	while (ch != EOF) {
+		if (ch == '\n') {
+			(*count)++;
+		}
+		ch = getc(fp);
+	}
+	rewind(fp);
+
+	return TRUE;
 }
 
 bool split_names(char* names, char* name1, char* name2) {
