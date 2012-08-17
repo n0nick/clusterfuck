@@ -20,7 +20,7 @@ bool add_node(int index, char* name) {
 	return TRUE;
 }
 
-bool add_edge(int id1, int id2, double weight, int* countEdges, double* totalWeights) {
+bool add_edge(int id1, int id2, double weight) {
 
 	extern node* nodes;
 
@@ -58,8 +58,6 @@ bool add_edge(int id1, int id2, double weight, int* countEdges, double* totalWei
 				success = add_one_edge(v2, v1, weight);
 				if (success) {
 					/* count edge */
-					*countEdges = *countEdges + 1;
-					*totalWeights = *totalWeights + weight;
 					v1->degree++;
 					v2->degree++;
 				}
@@ -101,7 +99,7 @@ bool add_one_edge(node* nodeFrom, node* nodeTo, double weight) {
 	return TRUE;
 }
 
-bool remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWeights) {
+bool remove_edge(node* nodes, int id1, int id2) {
 	bool removed;
 	double removedWeight;
 	node* v1;
@@ -119,8 +117,6 @@ bool remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWe
 		}
 	} else {
 		/* count edge */
-		*countEdges = *countEdges - 1;
-		*totalWeights = *totalWeights - removedWeight;
 		v1->degree--;
 		v2->degree--;
 	}
@@ -172,13 +168,30 @@ int remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight) {
 	return (success);
 }
 
-bool print_nodes(node* nodes, int size) {
+bool lookup_node(char* name, int* idx) {
+	extern node* nodes;
+	extern int nodesCount;
+	int i;
+
+	for(i=0;i<nodesCount;i++) {
+		if(strcmp(name, (nodes[i]).name) == 0) {
+			*idx = i;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+bool print_nodes() {
+	extern node* nodes;
+	extern int nodesCount;
 	int i;
 	int printf_result;
 
-	printf_result = printf("%d nodes:\n", size);
+	printf_result = printf("%d nodes:\n", nodesCount);
 
-	for(i = 0; i < size && printf_result >= 0; i++) {
+	for(i = 0; i < nodesCount && printf_result >= 0; i++) {
 		printf_result = printf("%d: %s\n", nodes[i].id, nodes[i].name);
 	}
 
@@ -187,4 +200,33 @@ bool print_nodes(node* nodes, int size) {
 		return FALSE;
 	}
 	return TRUE;
+}
+
+bool print_edges() {
+	extern node* nodes;
+	extern int nodesCount;
+	int i;
+	edge* currEdge;
+	int printf_result;
+
+	bool success = TRUE;
+
+	printf_result = printf("edges:\n");
+
+	for(i = 0; i < nodesCount && printf_result >= 0; i++) {
+		currEdge = nodes[i].edges;
+		while(currEdge != NULL && printf_result >= 0) {
+			if (i < currEdge->nodeID) { /* to conform with supplied tests */
+				printf_result = printf("%s %s %f\n", nodes[currEdge->nodeID].name, nodes[i].name, currEdge->weight);
+			}
+			currEdge = currEdge->next;
+		}
+	}
+
+	if (printf_result < 0) {
+		perror(ERROR_PRINTF);
+		success = FALSE;
+	}
+
+	return success;
 }

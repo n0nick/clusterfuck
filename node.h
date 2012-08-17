@@ -23,11 +23,12 @@ struct node {
 };
 
 bool add_node(int index, char* name);
-bool add_edge(int id1, int id2, double weight, int* countEdges, double* totalWeights);
-bool remove_edge(node* nodes, int id1, int id2, int* countEdges, double* totalWeights);
+bool add_edge(int id1, int id2, double weight);
+bool remove_edge(node* nodes, int id1, int id2);
 bool add_one_edge(node* nodeFrom, node* nodeTo, double weight);
 bool remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight);
-
-bool print_nodes(node* nodes, int size);
+bool lookup_node(char* name, int* idx);
+bool print_nodes();
+bool print_edges();
 
 #endif
