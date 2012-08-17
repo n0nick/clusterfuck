@@ -23,6 +23,7 @@ bool add_node(int index, char* name) {
 bool add_edge(int id1, int id2, double weight) {
 
 	extern node* nodes;
+	extern int edgesCount;
 
 	bool valid;
 	node* v1;
@@ -66,6 +67,10 @@ bool add_edge(int id1, int id2, double weight) {
 	} else {
 		perror(ERROR_PRINTF);
 		success = FALSE;
+	}
+
+	if (success) {
+		edgesCount++;
 	}
 
 	return success;
