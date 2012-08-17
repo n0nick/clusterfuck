@@ -12,6 +12,7 @@
 /* You may and should alter the file */
 
 #include "cluster.h"
+#include "reduction.h"
 
 /* This routine initializes the cplex enviorement, sets screen as an output for cplex errors and notifications, 
    and sets parameters for cplex. It calls for a mixed integer program solution and frees the environment.
@@ -22,8 +23,13 @@
    Read solution (both objective function value and variables assignment). 
    Communicate to pass the problem and the solution between the modules in the best way you see. 
 */
-int k_cluster()
+int k_cluster(int k)
 {
+    /* Variables of calculating params */
+    int numcols,numrows, objsen;
+    double *obj, *rhs, *matval, *lb, *ub;
+    int *matbeg, *matcnt, *matind, *indices;
+    char * sense, *ctypes;
 
    /* Declare pointers for the variables and arrays that will contain
       the data which define the LP problem. */
@@ -65,6 +71,8 @@ int k_cluster()
    }
 
    /* Create the problem. */
+   probname = (char*) malloc(sizeof(char)*32);
+   strcpy(probname, "K_CLUSTERING.txt");
    p_lp = CPXcreateprob (p_env, &status, probname);
 
    /* A returned pointer of NULL may mean that not enough memory
@@ -79,7 +87,23 @@ int k_cluster()
       goto TERMINATE;
    }
 
-   /* Use CPXcopylp to transfer the ILP part of the problem data into the cplex pointer lp */   
+   objsen = CPX_MAX;
+   lp_params(k, &rhs, &matval, &lb, &ub, &matbeg, &matcnt, &matind, &sense, &numcols, &numrows, &indices, &ctypes);
+
+   obj = (double*) malloc(sizeof(double) * numcols);
+   lp_objective_function_coefficients(k, obj);
+
+   /* Use CPXcopylp to transfer the ILP part of the problem data into the cplex pointer lp */
+   status = CPXcopylp (p_env, p_lp, numcols, numrows, objsen, obj, rhs,
+					  sense, matbeg, matcnt, matind, matval,
+					  lb, ub, NULL);
+
+   /* Now copy the ctype array */
+   status = CPXchgctype(p_env, p_lp, numcols, indices, ctypes);
+   if ( status ) {
+       fprintf (stderr, "Failed to change ctype\n");
+       goto TERMINATE;
+   }
 
    /* Optimize the problem. */
    status = CPXmipopt (p_env, p_lp);

@@ -13,6 +13,6 @@
 
 /* Include declaration for functions */
 void free_and_null (char **ptr);
-int  k_cluster();
+int  k_cluster(int k);
 
 #endif

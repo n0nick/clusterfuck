@@ -10,6 +10,7 @@
 #include "node.h"
 #include "files.h"
 #include "reduction.h"
+#include "cluster.h"
 
 /* Global variables */
 node* nodes = NULL;
@@ -23,6 +24,7 @@ int main(int argc, char* argv[]) {
 	int lowerBound;
 	int upperBound;
 
+	int success;
 	int k;
 	double** coeffs = NULL;
 
@@ -52,7 +54,9 @@ int main(int argc, char* argv[]) {
 	read_data(inputFolder);
 
 	for (k = lowerBound; k <= upperBound; k++) {
-		lp_objective_function_coefficients(k, coeffs);
+		/*lp_objective_function_coefficients(k, coeffs);*/
+		success = k_cluster(k);
+		printf("result: %d\n", success);
 
 		/* TODO free stuff */
 	}
