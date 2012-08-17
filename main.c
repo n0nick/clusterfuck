@@ -12,7 +12,7 @@
 
 /* Global variables */
 node* nodes = NULL;
-edge* edges = NULL;
+int nodesCount = 0;
 
 /* main */
 int main(int argc, char* argv[]) {
