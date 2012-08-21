@@ -57,6 +57,14 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 	extern int edgesCount;
 
 	int i;
+	int size = (3*edgesCount*k + nodesCount + k);
+
+	rhs = (double**) malloc(sizeof(double*) * size);
+	sense = (char**) malloc(sizeof(char*) * size);
+	for (i=0; i<size; i++) {
+		rhs[i] = (double*) malloc(sizeof(double));
+		sense[i] = (char*) malloc(sizeof(char));
+	}
 
 	/* constraint 1 */
 	for (i=0; i<(2*edgesCount*k); i++) {

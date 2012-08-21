@@ -25,6 +25,8 @@ int main(int argc, char* argv[]) {
 
 	int k;
 	double** coeffs = NULL;
+	char **sense = NULL;
+	double **rhs = NULL;
 
 	/* parse arguments */
 	if (argc != 5) {
@@ -54,6 +56,7 @@ int main(int argc, char* argv[]) {
 	for (k = lowerBound; k <= upperBound; k++) {
 		printf("trying with k=%d...\n", k);
 		lp_objective_function_coefficients(k, coeffs);
+		lp_rhs_sense(k, rhs, sense);
 
 		/* TODO free stuff */
 	}
