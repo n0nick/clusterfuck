@@ -47,11 +47,12 @@ int main(int argc, char* argv[]) {
 	}
 
 	/*TODO debug*/
-	printf("in: %s\nout: %s\nlow: %d up: %d\n", inputFolder, outputFolder, lowerBound, upperBound);
+	/*printf("in: %s\nout: %s\nlow: %d up: %d\n", inputFolder, outputFolder, lowerBound, upperBound);*/
 
 	read_data(inputFolder);
 
 	for (k = lowerBound; k <= upperBound; k++) {
+		printf("trying with k=%d...\n", k);
 		lp_objective_function_coefficients(k, coeffs);
 
 		/* TODO free stuff */

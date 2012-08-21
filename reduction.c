@@ -10,13 +10,15 @@
 #include "consts.h"
 #include "node.h"
 
+/* debug */
 #include <stdio.h>
 
 bool lp_objective_function_coefficients(int k, double** coefficients) {
 	extern node* nodes;
 	extern int nodesCount;
 	extern int edgesCount;
-	int i, j;
+	int index = 0;
+	int i, cluster;
 	edge* currEdge;
 
 	int numcols = k * (nodesCount + edgesCount);
@@ -27,22 +29,23 @@ bool lp_objective_function_coefficients(int k, double** coefficients) {
 	}
 
 	/* X's coefficients are all 0s. */
-	for(i = 0; i < (k * nodesCount); i++) {
-		*(coefficients[i]) = 0;
-	}
-
-	/* Z's coefficients are the edges' weights */
-	for (j = 0; j < nodesCount; j++) {
-		currEdge = nodes[j].edges;
-		while (currEdge != NULL) {
-			*(coefficients[i++]) = currEdge->weight;
-			currEdge = currEdge->next;
+	for (cluster = 0; cluster < k; cluster++) {
+		for(i = 0; i < nodesCount; i++) {
+			*(coefficients[index++]) = 0;
 		}
 	}
 
-	/* debug */
-	for (i=0; i<numcols; i++) {
-		printf("%f, ", *(coefficients[i]));
+	/* Z's coefficients are the edges' weights */
+	for (cluster = 0; cluster < k; cluster++) {
+		for (i = 0; i < nodesCount; i++) {
+			currEdge = nodes[i].edges;
+			while (currEdge != NULL) {
+				if(currEdge->nodeFrom < currEdge->nodeTo) {
+					*(coefficients[index++]) = currEdge->weight;
+				}
+				currEdge = currEdge->next;
+			}
+		}
 	}
 
 	return TRUE;
@@ -57,26 +60,26 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 
 	/* constraint 1 */
 	for (i=0; i<(2*edgesCount*k); i++) {
-		rhs[i] = 0;
-		sense[i] = 'L';
+		*rhs[i] = 0;
+		*sense[i] = 'L';
 	}
 
 	/* constraint 2 */
 	for (; i<(3*edgesCount*k); i++) {
-		rhs[i] = -1;
-		sense[i] = 'G';
+		*rhs[i] = -1;
+		*sense[i] = 'G';
 	}
 
 	/* constraint 3 */
 	for (; i<(3*edgesCount*k + nodesCount); i++) {
-		rhs[i] = 1;
-		sense[i] = 'E';
+		*rhs[i] = 1;
+		*sense[i] = 'E';
 	}
 
 	/* contraint 4 */
 	for (; i<(3*edgesCount*k + nodesCount + k); i++) {
-		rhs[i] = 1;
-		sense[i] = 'G';
+		*rhs[i] = 1;
+		*sense[i] = 'G';
 	}
 
 	return TRUE;
@@ -89,7 +92,6 @@ bool lp_matrix(int k, int *matbeg, int *matcnt, int *matind, double *matval) {
 
 	int currRow = 0;
 
-	int i;
 	int cluster;
 	int nodeIndex;
 	edge* currEdge;
@@ -99,10 +101,10 @@ bool lp_matrix(int k, int *matbeg, int *matcnt, int *matind, double *matval) {
 		for (nodeIndex = 0; nodeIndex < nodesCount; nodeIndex++) {
 			currEdge = nodes[nodeIndex].edges;
 			while (currEdge != NULL) {
-
+/*
 				matavl.push(-1);
 				matind.push(currRow);
-
+*/
 
 				currEdge = currEdge->next;
 				currRow++;
