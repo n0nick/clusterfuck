@@ -100,8 +100,10 @@ bool lp_matrix(int k, int *matbeg, int *matcnt, int *matind, double *matval) {
 
 	int currRow = 0;
 
+	int i;
 	int cluster;
 	int nodeIndex;
+	int edgeIndex = 0;
 	edge* currEdge;
 
 	/* constraint 1 */
@@ -109,13 +111,28 @@ bool lp_matrix(int k, int *matbeg, int *matcnt, int *matind, double *matval) {
 		for (nodeIndex = 0; nodeIndex < nodesCount; nodeIndex++) {
 			currEdge = nodes[nodeIndex].edges;
 			while (currEdge != NULL) {
-/*
-				matavl.push(-1);
-				matind.push(currRow);
-*/
+
+				col = k*|V| + k*|E| + e;
+
+				/* putting Z's */
+				if (matbeg[col] == 0)
+					x = ...
+					matbeg[col] = x
+				else
+					x = matbeg[col] + matcnt[col] + 1
+
+				matcnt[col]++;
+
+				matval[x] = 1;
+				matind[x] = lineIndex;
+
+				/* putting X's */
+
+
 
 				currEdge = currEdge->next;
 				currRow++;
+				edgeIndex++;
 			}
 		}
 	}
