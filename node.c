@@ -70,6 +70,10 @@ bool add_edge(int id1, int id2, double weight) {
 }
 
 bool add_one_edge(node* nodeFrom, node* nodeTo, double weight) {
+	extern edge* edges;
+
+	static int edgesAdded = 0;
+
 	edge* currEdge;
 	edge* newEdge;
 
@@ -95,6 +99,7 @@ bool add_one_edge(node* nodeFrom, node* nodeTo, double weight) {
 		return FALSE;
 	}
 
+	edges[edgesAdded++] = *newEdge;
 	return TRUE;
 }
 

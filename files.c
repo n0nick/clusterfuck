@@ -60,6 +60,7 @@ bool read_nodes(char* nodesPath) {
 	return TRUE;
 }
 bool read_edges(char* edgesPath) {
+	extern edge* edges;
 	extern int edgesCount;
 
 	char name1 [MAX_LINE_LENGTH];
@@ -80,6 +81,9 @@ bool read_edges(char* edgesPath) {
 
 	/* figure out number of edges in file */
 	file_lines_count(fp, &edgesCount);
+
+	/* allocate memory for edges array */
+	edges = calloc(sizeof(edge), edgesCount);
 
 	/* Loop through lines, adding nodes */
 	while (success && (fscanf(fp, "interaction: %s %f\n", names, &weight) == 2)) {
