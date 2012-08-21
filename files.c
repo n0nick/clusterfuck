@@ -129,5 +129,8 @@ bool split_names(char* names, char* name1, char* name2) {
 		}
 	}
 
+	name1[delimPos] = '\0';
+	name2[i - delimPos - 1] = '\0';
+
 	return (strlen(name1) && strlen(name2));
 }
