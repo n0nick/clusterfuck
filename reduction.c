@@ -36,7 +36,7 @@ bool lp_objective_function_coefficients(int k, double** coefficients) {
 		for (i = 0; i < nodesCount; i++) {
 			currEdge = nodes[i].edges;
 			while (currEdge != NULL) {
-				if (currEdge->nodeFrom < currEdge->nodeTo) {
+				if (currEdge->nodeTo < currEdge->nodeFrom) {
 					*(coefficients[index++]) = currEdge->weight;
 				}
 				currEdge = currEdge->next;
@@ -141,26 +141,26 @@ bool lp_matrix(int k, int *matbeg, int *matcnt, int *matind, double *matval) {
 		matval[3 * i + 1] = 1;
 		matval[3 * i + 2] = 1;
 
-		matind[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
-				+ vertices_so_far[edges[edgeId].nodeFrom]] = 3 * i;
 		matind[matbeg[edgesCount * k + edges[edgeId].nodeTo]
-				+ vertices_so_far[edges[edgeId].nodeTo]] = 3 * i + 1;
+				+ vertices_so_far[edges[edgeId].nodeTo]] = 3 * i;
 		matind[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
-				+ vertices_so_far[edges[edgeId].nodeFrom] + 1] = 3 * i + 2;
+				+ vertices_so_far[edges[edgeId].nodeFrom]] = 3 * i + 1;
 		matind[matbeg[edgesCount * k + edges[edgeId].nodeTo]
 				+ vertices_so_far[edges[edgeId].nodeTo] + 1] = 3 * i + 2;
+		matind[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
+				+ vertices_so_far[edges[edgeId].nodeFrom] + 1] = 3 * i + 2;
 
-		matval[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
-				+ vertices_so_far[edges[edgeId].nodeFrom]] = -1;
 		matval[matbeg[edgesCount * k + edges[edgeId].nodeTo]
 				+ vertices_so_far[edges[edgeId].nodeTo]] = -1;
 		matval[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
-				+ vertices_so_far[edges[edgeId].nodeFrom] + 1] = -1;
+				+ vertices_so_far[edges[edgeId].nodeFrom]] = -1;
 		matval[matbeg[edgesCount * k + edges[edgeId].nodeTo]
 				+ vertices_so_far[edges[edgeId].nodeTo] + 1] = -1;
+		matval[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
+				+ vertices_so_far[edges[edgeId].nodeFrom] + 1] = -1;
 
-		vertices_so_far[edges[edgeId].nodeFrom] += 2;
 		vertices_so_far[edges[edgeId].nodeTo] += 2;
+		vertices_so_far[edges[edgeId].nodeFrom] += 2;
 
 	}
 
