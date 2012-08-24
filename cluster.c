@@ -41,7 +41,6 @@ int k_cluster(int k)
    CPXLPptr  p_lp               = NULL;
    int       status;
    bool      success;
-   int i;
 
    /* problem variables */
    int       numcols;
@@ -59,9 +58,9 @@ int k_cluster(int k)
    char      **types;
    
    /* prepare problem name */
-   probname = calloc(sizeof(char), strlen("k_cluster") + 1);
+   probname = calloc(sizeof(char), strlen("k_cluster.LP") + 1);
    /*TODO check calloc success */
-   strcpy(probname, "k_cluster");
+   strcpy(probname, "k_cluster.LP");
 
    /* Initialize the CPLEX environment */
    p_env = CPXopenCPLEX (&status);
