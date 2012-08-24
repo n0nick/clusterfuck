@@ -214,3 +214,25 @@ bool lp_bounds(int numcols, double **lb, double **ub) {
 
 	return TRUE;
 }
+
+bool lp_indices_types(int numcols, int **indices, char **types, char type) {
+	int i;
+	bool success = TRUE;
+
+	/* allocate memory */
+	for (i=0; (i < numcols) && success; i++) {
+		indices[i] = calloc(sizeof(int), 1);
+		types[i] = calloc(sizeof(char), 1);
+		success = (indices[i] != NULL && types[i] != NULL);
+	}
+
+	if (!success) { /* one of the calloc() failed */
+		return FALSE;
+	}
+	for (i=0; i < numcols; i++) {
+		*indices[i] = i;
+		*types[i] = type;
+	}
+
+	return TRUE;
+}

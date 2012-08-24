@@ -41,19 +41,22 @@ int k_cluster(int k)
    CPXLPptr  p_lp               = NULL;
    int       status;
    bool      success;
+   int i;
 
    /* problem variables */
    int       numcols;
    int       numrows;
-   double**	 coeffs = NULL;
-   char      **sense = NULL;
-   double    **rhs = NULL;
-   int       **matbeg = NULL;
-   int       **matcnt = NULL;
-   int       **matind = NULL;
-   double    **matval = NULL;
-   double    **lb = NULL;
-   double    **ub = NULL;
+   double**	 coeffs;
+   char      **sense;
+   double    **rhs;
+   int       **matbeg;
+   int       **matcnt;
+   int       **matind;
+   double    **matval;
+   double    **lb;
+   double    **ub;
+   int       **indices;
+   char      **types;
    
    /* prepare problem name */
    probname = calloc(sizeof(char), strlen("k_cluster") + 1);
@@ -104,7 +107,7 @@ int k_cluster(int k)
    /* Prepare problem variables */
    /* TODO check success */
    numcols = k * (nodesCount + edgesCount);
-   numrows = 3 * edgesCount * k + nodesCount + k; /*TODO is that right?*/
+   numrows = 3 * edgesCount * k + nodesCount + k;
 
    coeffs = calloc(sizeof(double*), numcols);
    lp_objective_function_coefficients(k, coeffs);
@@ -113,8 +116,8 @@ int k_cluster(int k)
    sense = calloc(sizeof(char*), numrows);
    lp_rhs_sense(k, rhs, sense);
 
-   matbeg = calloc(sizeof(int*), k * (edgesCount + nodesCount));
-   matcnt = calloc(sizeof(int*), k * (edgesCount + nodesCount));
+   matbeg = calloc(sizeof(int*), numcols);
+   matcnt = calloc(sizeof(int*), numcols);
    matind = calloc(sizeof(int*),    k * (edgesCount * 7 + nodesCount * 2));
    matval = calloc(sizeof(double*), k * (edgesCount * 7 + nodesCount * 2));
    lp_matrix(k, matbeg, matcnt, matind, matval);
@@ -122,6 +125,10 @@ int k_cluster(int k)
    lb = calloc(sizeof(double*), numcols);
    ub = calloc(sizeof(double*), numcols);
    lp_bounds(numcols, lb, ub);
+
+   indices = calloc(sizeof(int*), numcols);
+   types = calloc(sizeof(char*), numcols);
+   lp_indices_types(numcols, indices, types, CPX_BINARY);
 
    /* Use CPXcopylp to transfer the ILP part of the problem data into the cplex pointer lp */
    success = CPXcopylp (p_env,
@@ -140,8 +147,13 @@ int k_cluster(int k)
                   *ub,
                   NULL);
 
-   /*TODO debug */
-   printf("success: %d\n", success);
+
+   status = CPXchgctype(p_env, p_lp, numcols, *indices, *types);
+   if(status)
+   {
+           fprintf (stderr, "Error: Failed to change variable type.\n");
+           goto TERMINATE;
+   }
 
    /* Optimize the problem. */
    status = CPXmipopt (p_env, p_lp);
