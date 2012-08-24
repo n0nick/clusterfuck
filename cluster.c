@@ -12,6 +12,7 @@
 /* You may and should alter the file */
 
 #include "cluster.h"
+#include "reduction.h"
 
 /* This routine initializes the cplex enviorement, sets screen as an output for cplex errors and notifications, 
    and sets parameters for cplex. It calls for a mixed integer program solution and frees the environment.
@@ -22,14 +23,16 @@
    Read solution (both objective function value and variables assignment). 
    Communicate to pass the problem and the solution between the modules in the best way you see. 
 */
-int k_cluster()
+int k_cluster(int k)
 {
+   extern int nodesCount;
+   extern int edgesCount;
 
    /* Declare pointers for the variables and arrays that will contain
       the data which define the LP problem. */
 
-   char     *probname = NULL;  
-   
+   char     *probname = NULL;
+
    /* Declare and allocate space for the variables and arrays where we
       will store the optimization results including the status, objective
       value and variable values. */
@@ -37,7 +40,26 @@ int k_cluster()
    CPXENVptr p_env              = NULL;
    CPXLPptr  p_lp               = NULL;
    int       status;
+   bool      success;
+
+   /* problem variables */
+   int       numcols;
+   int       numrows;
+   double**	 coeffs = NULL;
+   char      **sense = NULL;
+   double    **rhs = NULL;
+   int       **matbeg = NULL;
+   int       **matcnt = NULL;
+   int       **matind = NULL;
+   double    **matval = NULL;
+   double    **lb = NULL;
+   double    **ub = NULL;
    
+   /* prepare problem name */
+   probname = calloc(sizeof(char), strlen("k_cluster") + 1);
+   /*TODO check calloc success */
+   strcpy(probname, "k_cluster");
+
    /* Initialize the CPLEX environment */
    p_env = CPXopenCPLEX (&status);
 
@@ -59,7 +81,7 @@ int k_cluster()
    /* Turn on output to the screen */
    status = CPXsetintparam (p_env, CPX_PARAM_SCRIND, CPX_ON);
    if ( status ) {
-      fprintf (stderr, 
+      fprintf (stderr,
 		  "Error: Failure to turn on screen indicator, error %d.\n", status);
       goto TERMINATE;
    }
@@ -68,8 +90,8 @@ int k_cluster()
    p_lp = CPXcreateprob (p_env, &status, probname);
 
    /* A returned pointer of NULL may mean that not enough memory
-      was available or there was some other problem.  In the case of 
-      failure, an error message will have been written to the error 
+      was available or there was some other problem.  In the case of
+      failure, an error message will have been written to the error
       channel from inside CPLEX. The setting of
       the parameter CPX_PARAM_SCRIND causes the error message to
       appear on stdout.  */
@@ -79,7 +101,47 @@ int k_cluster()
       goto TERMINATE;
    }
 
-   /* Use CPXcopylp to transfer the ILP part of the problem data into the cplex pointer lp */   
+   /* Prepare problem variables */
+   /* TODO check success */
+   numcols = k * (nodesCount + edgesCount);
+   numrows = 3 * edgesCount * k + nodesCount + k; /*TODO is that right?*/
+
+   coeffs = calloc(sizeof(double*), numcols);
+   lp_objective_function_coefficients(k, coeffs);
+
+   rhs = calloc(sizeof(double*), numrows);
+   sense = calloc(sizeof(char*), numrows);
+   lp_rhs_sense(k, rhs, sense);
+
+   matbeg = calloc(sizeof(int*), k * (edgesCount + nodesCount));
+   matcnt = calloc(sizeof(int*), k * (edgesCount + nodesCount));
+   matind = calloc(sizeof(int*),    k * (edgesCount * 7 + nodesCount * 2));
+   matval = calloc(sizeof(double*), k * (edgesCount * 7 + nodesCount * 2));
+   lp_matrix(k, matbeg, matcnt, matind, matval);
+
+   lb = calloc(sizeof(double*), numcols);
+   ub = calloc(sizeof(double*), numcols);
+   lp_bounds(numcols, lb, ub);
+
+   /* Use CPXcopylp to transfer the ILP part of the problem data into the cplex pointer lp */
+   success = CPXcopylp (p_env,
+		   	   	  p_lp,
+                  numcols,
+                  numrows,
+                  CPX_MAX,
+                  *coeffs,
+                  *rhs,
+                  *sense,
+                  *matbeg,
+                  *matcnt,
+                  *matind,
+                  *matval,
+                  *lb,
+                  *ub,
+                  NULL);
+
+   /*TODO debug */
+   printf("success: %d\n", success);
 
    /* Optimize the problem. */
    status = CPXmipopt (p_env, p_lp);
@@ -94,9 +156,12 @@ int k_cluster()
       fprintf (stderr, "Error: Failed to write LP to disk.\n");
       goto TERMINATE;
    }
-   
-   
+
+
 TERMINATE:
+
+
+	/* TODO free problem variables */
 
    /* Free up the problem as allocated by CPXcreateprob, if necessary */
    if ( p_lp != NULL ) {
@@ -122,9 +187,9 @@ TERMINATE:
          fprintf (stderr, "%s", errmsg);
       }
    }
-     
+
    /* Free up the problem data arrays, if necessary. */
-     
+
    return (status);
 }  
 

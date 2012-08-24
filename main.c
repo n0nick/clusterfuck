@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "node.h"
 #include "files.h"
-#include "reduction.h"
+#include "cluster.h"
 
 /* Global variables */
 node* nodes = NULL;
@@ -25,14 +25,7 @@ int main(int argc, char* argv[]) {
 	int upperBound;
 
 	/* TODO move these!!!!!! */
-	int k, i;
-	double** coeffs = NULL;
-	char **sense = NULL;
-	double **rhs = NULL;
-    int **matbeg = NULL;
-    int **matcnt = NULL;
-    int **matind = NULL;
-    double **matval = NULL;
+	int k;
 
 	/* parse arguments */
 	if (argc != 5) {
@@ -62,10 +55,7 @@ int main(int argc, char* argv[]) {
 	for (k = lowerBound; k <= upperBound; k++) {
 
 		printf("trying with k=%d...\n", k);
-
-		lp_objective_function_coefficients(k, coeffs);
-		lp_rhs_sense(k, rhs, sense);
-		lp_matrix(k, matbeg, matcnt, matind, matval);
+		k_cluster(k);
 
 		printf("\n\n");
 
