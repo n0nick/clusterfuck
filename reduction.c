@@ -21,12 +21,19 @@ bool lp_objective_function_coefficients(int k, double** coefficients) {
 	int i, cluster;
 	edge* currEdge;
 
+	bool success = TRUE;
 	int numcols = k * (nodesCount + edgesCount);
 
 	/* allocate memory for coefficients array */
 	coefficients = calloc(sizeof(double*), numcols);
-	for (i = 0; i < numcols; i++) {
+	success = (coefficients != NULL);
+	for (i = 0; (i < numcols) && success; i++) {
 		coefficients[i] = calloc(sizeof(double), 1);
+		success = coefficients[i] != NULL;
+	}
+
+	if (!success) { /* one of the calloc()s falied */
+		return FALSE;
 	}
 
 	index = 0;
@@ -60,7 +67,7 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 	extern int nodesCount;
 	extern int edgesCount;
 
-	bool success;
+	bool success = TRUE;
 	int i;
 	int size = (3 * edgesCount * k + nodesCount + k);
 
@@ -69,12 +76,10 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 	sense = calloc(sizeof(char*), size);
 	success = (rhs != NULL && sense != NULL);
 
-	if (success) {
-		for (i = 0; (i < size) && success; i++) {
-			rhs[i] = calloc(sizeof(double), 1);
-			sense[i] = calloc(sizeof(char), 1);
-			success = (rhs[i] != NULL && sense[i] != NULL);
-		}
+	for (i = 0; (i < size) && success; i++) {
+		rhs[i] = calloc(sizeof(double), 1);
+		sense[i] = calloc(sizeof(char), 1);
+		success = (rhs[i] != NULL && sense[i] != NULL);
 	}
 
 	if (!success) { /* one of the calloc()s failed */
