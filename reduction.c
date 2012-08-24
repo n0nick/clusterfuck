@@ -116,20 +116,27 @@ bool lp_matrix(int k, int *matbeg, int *matcnt, int *matind, double *matval) {
 	extern int nodesCount;
 	extern int edgesCount;
 
-	int place_taken_in_matval = edgesCount * k * 3;
-	int temp_sum = 0;
-
-	int* vertices_so_far = calloc(sizeof(int), nodesCount);
+	/* helper variables */
+	int matbeg_offset = edgesCount * k * 3;
+	int matcnt_sum = 0;
+	int* scanned; /* remembering scanned nodes per edge */
 
 	int i, j;
 
-	for (j = 0, i = edgesCount * k; i < edgesCount * k + k * nodesCount; i++, j++) {
-		matbeg[i] = place_taken_in_matval + temp_sum;
-		matcnt[i] = 2 * (nodes[j / k].degree) + 2;
-
-		temp_sum += matcnt[i];
+	scanned = calloc(sizeof(int), nodesCount);
+	if (scanned == NULL) { /* calloc() failed */
+		return FALSE;
 	}
 
+	/* populating matbeg, matcnt */
+	for (j = 0, i = edgesCount * k; i < k * (edgesCount + nodesCount); i++, j++) {
+		matbeg[i] = matbeg_offset + matcnt_sum;
+		matcnt[i] = 2 * (nodes[j / k].degree) + 2;
+
+		matcnt_sum += matcnt[i];
+	}
+
+	/* constraints 1, 2 */
 	for (i = 0; i < edgesCount * k; i++) {
 		int edgeId = i / k;
 		matbeg[i] = i * 3;
@@ -142,36 +149,36 @@ bool lp_matrix(int k, int *matbeg, int *matcnt, int *matind, double *matval) {
 		matval[3 * i + 2] = 1;
 
 		matind[matbeg[edgesCount * k + edges[edgeId].nodeTo]
-				+ vertices_so_far[edges[edgeId].nodeTo]] = 3 * i;
+				+ scanned[edges[edgeId].nodeTo]] = 3 * i;
 		matind[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
-				+ vertices_so_far[edges[edgeId].nodeFrom]] = 3 * i + 1;
+				+ scanned[edges[edgeId].nodeFrom]] = 3 * i + 1;
 		matind[matbeg[edgesCount * k + edges[edgeId].nodeTo]
-				+ vertices_so_far[edges[edgeId].nodeTo] + 1] = 3 * i + 2;
+				+ scanned[edges[edgeId].nodeTo] + 1] = 3 * i + 2;
 		matind[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
-				+ vertices_so_far[edges[edgeId].nodeFrom] + 1] = 3 * i + 2;
+				+ scanned[edges[edgeId].nodeFrom] + 1] = 3 * i + 2;
 
 		matval[matbeg[edgesCount * k + edges[edgeId].nodeTo]
-				+ vertices_so_far[edges[edgeId].nodeTo]] = -1;
+				+ scanned[edges[edgeId].nodeTo]] = -1;
 		matval[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
-				+ vertices_so_far[edges[edgeId].nodeFrom]] = -1;
+				+ scanned[edges[edgeId].nodeFrom]] = -1;
 		matval[matbeg[edgesCount * k + edges[edgeId].nodeTo]
-				+ vertices_so_far[edges[edgeId].nodeTo] + 1] = -1;
+				+ scanned[edges[edgeId].nodeTo] + 1] = -1;
 		matval[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
-				+ vertices_so_far[edges[edgeId].nodeFrom] + 1] = -1;
+				+ scanned[edges[edgeId].nodeFrom] + 1] = -1;
 
-		vertices_so_far[edges[edgeId].nodeTo] += 2;
-		vertices_so_far[edges[edgeId].nodeFrom] += 2;
+		scanned[edges[edgeId].nodeTo] += 2;
+		scanned[edges[edgeId].nodeFrom] += 2;
 
 	}
 
-	/*fill matind x varibles for constraints of types III and IV*/
+	/* constraints 3, 4 */
 	for (i = 0; i < nodesCount * k; i++) {
-		matind[matbeg[edgesCount * k + i] + vertices_so_far[i / k]]
+		matind[matbeg[edgesCount * k + i] + scanned[i / k]]
 				= edgesCount * k * 3 + i / k;
-		matind[matbeg[edgesCount * k + i] + vertices_so_far[i / k] + 1]
+		matind[matbeg[edgesCount * k + i] + scanned[i / k] + 1]
 				= edgesCount * k * 3 + nodesCount + i / nodesCount;
-		matval[matbeg[edgesCount * k + i] + vertices_so_far[i / k]] = 1;
-		matval[matbeg[edgesCount * k + i] + vertices_so_far[i / k] + 1] = 1;
+		matval[matbeg[edgesCount * k + i] + scanned[i / k]] = 1;
+		matval[matbeg[edgesCount * k + i] + scanned[i / k] + 1] = 1;
 	}
 
 	return TRUE; /* absolutely */
