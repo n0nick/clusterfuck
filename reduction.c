@@ -68,20 +68,18 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 		return FALSE;
 	}
 
-	/* constraint 1 */
-	for (i = 0; i < (2 * edgesCount * k); i++) {
-		*rhs[i] = 0;
-		*sense[i] = 'L';
-	}
-
-	/* constraint 2 */
-	for (; i < (3 * edgesCount * k); i++) {
-		*rhs[i] = -1;
-		*sense[i] = 'G';
+	/* constraints 1, 2 */
+	for (i = 0; i < (edgesCount * k); i++) {
+		*sense[3*i] = 'L';
+		*sense[3*i+1] = 'L';
+		*sense[3*i+2] = 'G';
+		*rhs[3*i] = 0;
+		*rhs[3*i+1] = 0;
+		*rhs[3*i+2] = -1;
 	}
 
 	/* constraint 3 */
-	for (; i < (3 * edgesCount * k + nodesCount); i++) {
+	for (i = 3 * edgesCount * k; i < (3 * edgesCount * k + nodesCount); i++) {
 		*rhs[i] = 1;
 		*sense[i] = 'E';
 	}
