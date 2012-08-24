@@ -60,14 +60,25 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 	extern int nodesCount;
 	extern int edgesCount;
 
+	bool success;
 	int i;
 	int size = (3 * edgesCount * k + nodesCount + k);
 
+	/* allocate memory for rhs, sense */
 	rhs = calloc(sizeof(double*), size);
 	sense = calloc(sizeof(char*), size);
-	for (i = 0; i < size; i++) {
-		rhs[i] = calloc(sizeof(double), 1);
-		sense[i] = calloc(sizeof(char), 1);
+	success = (rhs != NULL && sense != NULL);
+
+	if (success) {
+		for (i = 0; (i < size) && success; i++) {
+			rhs[i] = calloc(sizeof(double), 1);
+			sense[i] = calloc(sizeof(char), 1);
+			success = (rhs[i] != NULL && sense[i] != NULL);
+		}
+	}
+
+	if (!success) { /* one of the calloc()s failed */
+		return FALSE;
 	}
 
 	/* constraint 1 */
