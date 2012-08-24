@@ -25,8 +25,6 @@ bool lp_objective_function_coefficients(int k, double** coefficients) {
 	int numcols = k * (nodesCount + edgesCount);
 
 	/* allocate memory for coefficients array */
-	coefficients = calloc(sizeof(double*), numcols);
-	success = (coefficients != NULL);
 	for (i = 0; (i < numcols) && success; i++) {
 		coefficients[i] = calloc(sizeof(double), 1);
 		success = coefficients[i] != NULL;
@@ -69,14 +67,10 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 
 	bool success = TRUE;
 	int i;
-	int size = (3 * edgesCount * k + nodesCount + k);
+	int numrows = (3 * edgesCount * k + nodesCount + k);
 
 	/* allocate memory for rhs, sense */
-	rhs = calloc(sizeof(double*), size);
-	sense = calloc(sizeof(char*), size);
-	success = (rhs != NULL && sense != NULL);
-
-	for (i = 0; (i < size) && success; i++) {
+	for (i = 0; (i < numrows) && success; i++) {
 		rhs[i] = calloc(sizeof(double), 1);
 		sense[i] = calloc(sizeof(char), 1);
 		success = (rhs[i] != NULL && sense[i] != NULL);
@@ -105,7 +99,7 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 	}
 
 	/* contraint 4 */
-	for (; i < (3 * edgesCount * k + nodesCount + k); i++) {
+	for (; i < numrows; i++) {
 		*rhs[i] = 1;
 		*sense[i] = 'G';
 	}
@@ -128,9 +122,6 @@ bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval)
 	int i, j;
 
 	/* allocate memory: matbeg, matcnt */
-	matbeg = calloc(sizeof(int*), k * (edgesCount + nodesCount));
-	matcnt = calloc(sizeof(int*), k * (edgesCount + nodesCount));
-	success = (matbeg != NULL && matcnt != NULL);
 	for (i=0; (i < k * (edgesCount + nodesCount)) && success; i++) {
 		matbeg[i] = calloc(sizeof(int), 1);
 		matcnt[i] = calloc(sizeof(int), 1);
@@ -139,9 +130,6 @@ bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval)
 
 	/* allocate memory: matind, matval */
 	if (success) {
-		matind = calloc(sizeof(int*),    k * (edgesCount * 7 + nodesCount * 2));
-		matval = calloc(sizeof(double*), k * (edgesCount * 7 + nodesCount * 2));
-		success = (matind != NULL && matval != NULL);
 		for (i=0; (i < k * (edgesCount * 7 + nodesCount * 2)) && success; i++) {
 			matind[i] = calloc(sizeof(int), 1);
 			matval[i] = calloc(sizeof(int), 1);
@@ -213,4 +201,28 @@ bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval)
 	}
 
 	return TRUE; /* absolutely */
+}
+
+bool lp_bounds(int numcols, double **lb, double **ub) {
+	int i;
+	bool success = TRUE;
+
+	/* allocate memory */
+	for (i=0; (i < numcols) && success; i++) {
+		lb[i] = calloc(sizeof(double), 1);
+		ub[i] = calloc(sizeof(double), 1);
+		success = (lb[i] != NULL && ub[i] != NULL);
+	}
+
+	if (!success) { /* one of the calloc() failed */
+		return FALSE;
+	}
+
+	/* populate lb (all 0's) and ub (all 1's) */
+	for (i=0; i < numcols; i++) {
+		*lb[i] = 0;
+		*ub[i] = 1;
+	}
+
+	return TRUE;
 }
