@@ -14,12 +14,11 @@
 #include <stdio.h>
 
 bool lp_objective_function_coefficients(int k, double** coefficients) {
-	extern node* nodes;
+	extern edge* edges;
 	extern int nodesCount;
 	extern int edgesCount;
 	int index;
 	int i, cluster;
-	edge* currEdge;
 
 	bool success = TRUE;
 	int numcols = k * (nodesCount + edgesCount);
@@ -38,30 +37,19 @@ bool lp_objective_function_coefficients(int k, double** coefficients) {
 
 	/* Z's coefficients are the edges' weights */
 	for (cluster = 0; cluster < k; cluster++) {
-		for (i = 0; i < nodesCount; i++) {
-			currEdge = nodes[i].edges;
-			while (currEdge != NULL) {
-				if (currEdge->nodeTo < currEdge->nodeFrom) {
-					*(coefficients[index++]) = currEdge->weight;
-				}
-				currEdge = currEdge->next;
+		for (i = 0; i < edgesCount; i++) {
+			if (edges[i].nodeTo < edges[i].nodeFrom) {
+				*coefficients[cluster * edgesCount + i] = edges[i].weight;
 			}
 		}
 	}
 
 	/* X's coefficients are all 0s. */
-	/* TODO necessary? */
-	for (cluster = 0; cluster < k; cluster++) {
-		for (i = 0; i < nodesCount; i++) {
-			*(coefficients[index++]) = 0;
-		}
-	}
 
 	return TRUE;
 }
 
 bool lp_rhs_sense(int k, double** rhs, char** sense) {
-	extern node* nodes;
 	extern int nodesCount;
 	extern int edgesCount;
 
