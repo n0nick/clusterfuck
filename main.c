@@ -52,7 +52,9 @@ int main(int argc, char* argv[]) {
 	for (k = lowerBound; success && k <= upperBound; k++) {
 
 		printf("trying with k=%d...\n", k);
-		success = k_cluster(k);
+		if ( k_cluster(k) ) { /* k_cluster() failed */
+			success = FALSE;
+		}
 
 		printf("\n\n");
 
