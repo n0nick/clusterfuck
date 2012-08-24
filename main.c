@@ -24,8 +24,8 @@ int main(int argc, char* argv[]) {
 	int lowerBound;
 	int upperBound;
 
-	/* TODO move these!!!!!! */
 	int k;
+	bool success = TRUE;
 
 	/* parse arguments */
 	if (argc != 5) {
@@ -47,15 +47,12 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	/*TODO debug*/
-	/*printf("in: %s\nout: %s\nlow: %d up: %d\n", inputFolder, outputFolder, lowerBound, upperBound);*/
+	success = read_data(inputFolder);
 
-	read_data(inputFolder);
-
-	for (k = lowerBound; k <= upperBound; k++) {
+	for (k = lowerBound; success && k <= upperBound; k++) {
 
 		printf("trying with k=%d...\n", k);
-		k_cluster(k);
+		success = k_cluster(k);
 
 		printf("\n\n");
 
