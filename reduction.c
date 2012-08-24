@@ -113,60 +113,88 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 	return TRUE;
 }
 
-bool lp_matrix(int k, int *matbeg, int *matcnt, int *matind, double *matval) {
+bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval) {
 	extern node* nodes;
 	extern edge* edges;
 	extern int nodesCount;
 	extern int edgesCount;
 
 	/* helper variables */
+	bool success = TRUE;
 	int matbeg_offset = edgesCount * k * 3;
 	int matcnt_sum = 0;
 	int* scanned; /* remembering scanned nodes per edge */
 
 	int i, j;
 
-	scanned = calloc(sizeof(int), nodesCount);
-	if (scanned == NULL) { /* calloc() failed */
+	/* allocate memory: matbeg, matcnt */
+	matbeg = calloc(sizeof(int*), k * (edgesCount + nodesCount));
+	matcnt = calloc(sizeof(int*), k * (edgesCount + nodesCount));
+	success = (matbeg != NULL && matcnt != NULL);
+	for (i=0; (i < k * (edgesCount + nodesCount)) && success; i++) {
+		matbeg[i] = calloc(sizeof(int), 1);
+		matcnt[i] = calloc(sizeof(int), 1);
+		success = (matbeg[i] != NULL && matcnt[i] != NULL);
+	}
+
+	/* allocate memory: matind, matval */
+	if (success) {
+		matind = calloc(sizeof(int*),    k * (edgesCount * 7 + nodesCount * 2));
+		matval = calloc(sizeof(double*), k * (edgesCount * 7 + nodesCount * 2));
+		success = (matind != NULL && matval != NULL);
+		for (i=0; (i < k * (edgesCount * 7 + nodesCount * 2)) && success; i++) {
+			matind[i] = calloc(sizeof(int), 1);
+			matval[i] = calloc(sizeof(int), 1);
+			success = (matind[i] != NULL && matval[i] != NULL);
+		}
+	}
+
+	/* allocate memory: scanned */
+	if (success) {
+		scanned = calloc(sizeof(int), nodesCount);
+		success = (scanned != NULL);
+	}
+
+	if (!success) { /* one of the calloc()s failed */
 		return FALSE;
 	}
 
 	/* populating matbeg, matcnt */
 	for (j = 0, i = edgesCount * k; i < k * (edgesCount + nodesCount); i++, j++) {
-		matbeg[i] = matbeg_offset + matcnt_sum;
-		matcnt[i] = 2 * (nodes[j / k].degree) + 2;
+		*matbeg[i] = matbeg_offset + matcnt_sum;
+		*matcnt[i] = 2 * (nodes[j / k].degree) + 2;
 
-		matcnt_sum += matcnt[i];
+		matcnt_sum += *matcnt[i];
 	}
 
 	/* constraints 1, 2 */
 	for (i = 0; i < edgesCount * k; i++) {
 		int edgeId = i / k;
-		matbeg[i] = i * 3;
-		matcnt[i] = 3;
-		matind[3 * i] = 3 * i;
-		matind[3 * i + 1] = 3 * i + 1;
-		matind[3 * i + 2] = 3 * i + 2;
-		matval[3 * i] = 1;
-		matval[3 * i + 1] = 1;
-		matval[3 * i + 2] = 1;
+		*matbeg[i] = i * 3;
+		*matcnt[i] = 3;
+		*matind[3 * i] = 3 * i;
+		*matind[3 * i + 1] = 3 * i + 1;
+		*matind[3 * i + 2] = 3 * i + 2;
+		*matval[3 * i] = 1;
+		*matval[3 * i + 1] = 1;
+		*matval[3 * i + 2] = 1;
 
-		matind[matbeg[edgesCount * k + edges[edgeId].nodeTo]
+		*matind[*matbeg[edgesCount * k + edges[edgeId].nodeTo]
 				+ scanned[edges[edgeId].nodeTo]] = 3 * i;
-		matind[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
+		*matind[*matbeg[edgesCount * k + edges[edgeId].nodeFrom]
 				+ scanned[edges[edgeId].nodeFrom]] = 3 * i + 1;
-		matind[matbeg[edgesCount * k + edges[edgeId].nodeTo]
+		*matind[*matbeg[edgesCount * k + edges[edgeId].nodeTo]
 				+ scanned[edges[edgeId].nodeTo] + 1] = 3 * i + 2;
-		matind[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
+		*matind[*matbeg[edgesCount * k + edges[edgeId].nodeFrom]
 				+ scanned[edges[edgeId].nodeFrom] + 1] = 3 * i + 2;
 
-		matval[matbeg[edgesCount * k + edges[edgeId].nodeTo]
+		*matval[*matbeg[edgesCount * k + edges[edgeId].nodeTo]
 				+ scanned[edges[edgeId].nodeTo]] = -1;
-		matval[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
+		*matval[*matbeg[edgesCount * k + edges[edgeId].nodeFrom]
 				+ scanned[edges[edgeId].nodeFrom]] = -1;
-		matval[matbeg[edgesCount * k + edges[edgeId].nodeTo]
+		*matval[*matbeg[edgesCount * k + edges[edgeId].nodeTo]
 				+ scanned[edges[edgeId].nodeTo] + 1] = -1;
-		matval[matbeg[edgesCount * k + edges[edgeId].nodeFrom]
+		*matval[*matbeg[edgesCount * k + edges[edgeId].nodeFrom]
 				+ scanned[edges[edgeId].nodeFrom] + 1] = -1;
 
 		scanned[edges[edgeId].nodeTo] += 2;
@@ -176,12 +204,12 @@ bool lp_matrix(int k, int *matbeg, int *matcnt, int *matind, double *matval) {
 
 	/* constraints 3, 4 */
 	for (i = 0; i < nodesCount * k; i++) {
-		matind[matbeg[edgesCount * k + i] + scanned[i / k]]
+		*matind[*matbeg[edgesCount * k + i] + scanned[i / k]]
 				= edgesCount * k * 3 + i / k;
-		matind[matbeg[edgesCount * k + i] + scanned[i / k] + 1]
+		*matind[*matbeg[edgesCount * k + i] + scanned[i / k] + 1]
 				= edgesCount * k * 3 + nodesCount + i / nodesCount;
-		matval[matbeg[edgesCount * k + i] + scanned[i / k]] = 1;
-		matval[matbeg[edgesCount * k + i] + scanned[i / k] + 1] = 1;
+		*matval[*matbeg[edgesCount * k + i] + scanned[i / k]] = 1;
+		*matval[*matbeg[edgesCount * k + i] + scanned[i / k] + 1] = 1;
 	}
 
 	return TRUE; /* absolutely */
