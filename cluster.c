@@ -40,7 +40,7 @@ int k_cluster(int k)
    CPXENVptr p_env              = NULL;
    CPXLPptr  p_lp               = NULL;
    int       status;
-   bool      success;
+   bool      success			= TRUE;
 
    /* problem variables */
    int       numcols;
@@ -107,59 +107,80 @@ int k_cluster(int k)
    numrows = 3 * edgesCount * k + nodesCount + k; /*TODO is that right?*/
 
    coeffs = calloc(sizeof(double*), numcols);
-   lp_objective_function_coefficients(k, coeffs);
+   if(coeffs == NULL) {
+	   fprintf (stderr, "Error: Failed to allocate memory to coeffs.\n");
+	   goto TERMINATE;
+   }
+   success = success && lp_objective_function_coefficients(k, coeffs);
 
    rhs = calloc(sizeof(double*), numrows);
    sense = calloc(sizeof(char*), numrows);
-   lp_rhs_sense(k, rhs, sense);
+   if((rhs == NULL) || (sense == NULL)) {
+	   fprintf(stderr, "Error: Failed to allocate memory to rhs and/or sense.\n");
+	   goto TERMINATE;
+   }
+   success = success && lp_rhs_sense(k, rhs, sense);
 
    matbeg = calloc(sizeof(int*), k * (edgesCount + nodesCount));
    matcnt = calloc(sizeof(int*), k * (edgesCount + nodesCount));
    matind = calloc(sizeof(int*),    k * (edgesCount * 7 + nodesCount * 2));
    matval = calloc(sizeof(double*), k * (edgesCount * 7 + nodesCount * 2));
-   lp_matrix(k, matbeg, matcnt, matind, matval);
+   if((matbeg == NULL) || (matcnt == NULL) || (matind == NULL) || (matval == NULL)) {
+	   fprintf(stderr, "Error: Failed to allocate memory to the constraints.\n");
+	   goto TERMINATE;
+   }
+   success = success && lp_matrix(k, matbeg, matcnt, matind, matval);
 
    lb = calloc(sizeof(double*), numcols);
    ub = calloc(sizeof(double*), numcols);
-   lp_bounds(numcols, lb, ub);
+   if((lb == NULL) || (ub == NULL)) {
+	   fprintf(stderr, "Error: Failed to allocate memory to lower/upper bounds.\n");
+	   	   goto TERMINATE;
+   }
+   success = success && lp_bounds(numcols, lb, ub);
+
+   /* If success is TRUE then ALL preparation stages were executed correctly */
+   if (!success) {
+	   fprintf(stderr, "Error: Initializing the problems' arrays failed");
+	   goto TERMINATE;
+   }
 
    /* Use CPXcopylp to transfer the ILP part of the problem data into the cplex pointer lp */
-   success = CPXcopylp (p_env,
-		   	   	  p_lp,
-                  numcols,
-                  numrows,
-                  CPX_MAX,
-                  *coeffs,
-                  *rhs,
-                  *sense,
-                  *matbeg,
-                  *matcnt,
-                  *matind,
-                  *matval,
-                  *lb,
-                  *ub,
-                  NULL);
-
-   /*TODO debug */
-   printf("success: %d\n", success);
+   status = CPXcopylp (p_env,
+				  p_lp,
+				  numcols,
+				  numrows,
+				  CPX_MAX,
+				  *coeffs,
+				  *rhs,
+				  *sense,
+				  *matbeg,
+				  *matcnt,
+				  *matind,
+				  *matval,
+				  *lb,
+				  *ub,
+				  NULL);
+   if ( status ) {
+		  fprintf (stderr, "Error: Failed to transfer the ILP part of the problem data into the cplex pointer lp.\n");
+		  goto TERMINATE;
+   }
 
    /* Optimize the problem. */
    status = CPXmipopt (p_env, p_lp);
    if ( status ) {
-      fprintf (stderr, "Error: Failed to optimize problem.\n");
-      goto TERMINATE;
+	  fprintf (stderr, "Error: Failed to optimize problem.\n");
+	  goto TERMINATE;
    }
 
    /* Write a copy of the problem to a file. */
    status = CPXwriteprob (p_env, p_lp, probname, NULL);
    if ( status ) {
-      fprintf (stderr, "Error: Failed to write LP to disk.\n");
-      goto TERMINATE;
+	  fprintf (stderr, "Error: Failed to write LP to disk.\n");
+	  goto TERMINATE;
    }
 
-
 TERMINATE:
-
 
 	/* TODO free problem variables */
 
