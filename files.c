@@ -26,8 +26,10 @@ bool read_data(char* inputFolder) {
 	success = read_nodes(strcat(nodesPath, "nodes"));
 	success = success && read_edges(strcat(edgesPath, "edges"));
 
+	/*
 	print_nodes();
 	print_edges();
+	*/
 
 	return success;
 }
