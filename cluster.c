@@ -57,10 +57,12 @@ int k_cluster(int k)
    int       **indices;
    char      **types;
    
+   int i;
+
    /* prepare problem name */
-   probname = calloc(sizeof(char), strlen("k_cluster.LP") + 1);
+   probname = calloc(sizeof(char), strlen("k_cluster.LP") + 10);
    /*TODO check calloc success */
-   strcpy(probname, "k_cluster.LP");
+   sprintf(probname, "k_cluster_%08d.LP", k);
 
    /* Initialize the CPLEX environment */
    p_env = CPXopenCPLEX (&status);
@@ -195,8 +197,6 @@ int k_cluster(int k)
 
 TERMINATE:
 
-	/* TODO free problem variables */
-
    /* Free up the problem as allocated by CPXcreateprob, if necessary */
    if ( p_lp != NULL ) {
       status = CPXfreeprob (p_env, &p_lp);
@@ -223,6 +223,7 @@ TERMINATE:
    }
 
    /* Free up the problem data arrays, if necessary. */
+   /* TODO */
 
    return (status);
 }  
