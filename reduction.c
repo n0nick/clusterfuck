@@ -110,19 +110,6 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 		*sense[i] = 'G';
 	}
 
-	/* debug
-
-	printf("\nsense:\n");
-	for (i=0; i<(3 * edgesCount * k + nodesCount + k); i++) {
-		printf("%c", *sense[i]);
-	}
-	printf("\nrhs:\n");
-	for (i=0; i<(3 * edgesCount * k + nodesCount + k); i++) {
-		printf("%f ", *rhs[i]);
-	}
-
-	*/
-
 	return TRUE;
 }
 
