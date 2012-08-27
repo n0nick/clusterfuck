@@ -98,8 +98,11 @@ bool add_one_edge(node* nodeFrom, node* nodeTo, double weight) {
 		perror(ERROR_MALLOC);
 		return FALSE;
 	}
-/*TODO: change this... the problem is that this function is called twice for each one edge*/
-	edges[(edgesAdded++) / 2] = *newEdge;
+
+	/* add edge to array (only once) */
+	if (newEdge->nodeTo < newEdge->nodeFrom) {
+		edges[edgesAdded++] = *newEdge;
+	}
 	return TRUE;
 }
 
