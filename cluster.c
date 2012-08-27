@@ -45,17 +45,17 @@ int k_cluster(int k)
    /* problem variables */
    int       numcols;
    int       numrows;
-   double**	 coeffs;
-   char      **sense;
-   double    **rhs;
-   int       **matbeg;
-   int       **matcnt;
-   int       **matind;
-   double    **matval;
-   double    **lb;
-   double    **ub;
-   int       **indices;
-   char      **types;
+   double    *coeffs;
+   char      *sense;
+   double    *rhs;
+   int       *matbeg;
+   int       *matcnt;
+   int       *matind;
+   double    *matval;
+   double    *lb;
+   double    *ub;
+   int       *indices;
+   char      *types;
    
    int i;
 
@@ -110,38 +110,34 @@ int k_cluster(int k)
    numcols = k * (nodesCount + edgesCount);
    numrows = 3 * edgesCount * k + nodesCount + k;
 
-   coeffs = calloc(sizeof(double*), numcols);
+   coeffs = calloc(sizeof(double), numcols);
    if(coeffs == NULL) {
 	   fprintf (stderr, "Error: Failed to allocate memory to coeffs.\n");
 	   goto TERMINATE;
    }
-   success = success && lp_objective_function_coefficients(k, coeffs);
+   success = success && lp_objective_function_coefficients(k, &coeffs);
 
-   rhs = calloc(sizeof(double*), numrows);
-   sense = calloc(sizeof(char*), numrows);
-   if((rhs == NULL) || (sense == NULL)) {
-	   fprintf(stderr, "Error: Failed to allocate memory to rhs and/or sense.\n");
-	   goto TERMINATE;
-   }
-   success = success && lp_rhs_sense(k, rhs, sense);
+   rhs = calloc(sizeof(double), numrows);
+   sense = calloc(sizeof(char), numrows);
+   success = success && lp_rhs_sense(k, &rhs, &sense);
 
-   matbeg = calloc(sizeof(int*), numcols);
-   matcnt = calloc(sizeof(int*), numcols);
-   matind = calloc(sizeof(int*),    k * (edgesCount * 7 + nodesCount * 2));
-   matval = calloc(sizeof(double*), k * (edgesCount * 7 + nodesCount * 2));
+   matbeg = calloc(sizeof(int), numcols);
+   matcnt = calloc(sizeof(int), numcols);
+   matind = calloc(sizeof(int),    k * (edgesCount * 7 + nodesCount * 2));
+   matval = calloc(sizeof(double), k * (edgesCount * 7 + nodesCount * 2));
    if((matbeg == NULL) || (matcnt == NULL) || (matind == NULL) || (matval == NULL)) {
 	   fprintf(stderr, "Error: Failed to allocate memory to the constraints.\n");
 	   goto TERMINATE;
    }
-   success = success && lp_matrix(k, matbeg, matcnt, matind, matval);
+   success = success && lp_matrix(k, &matbeg, &matcnt, &matind, &matval);
 
-   lb = calloc(sizeof(double*), numcols);
-   ub = calloc(sizeof(double*), numcols);
+   lb = calloc(sizeof(double), numcols);
+   ub = calloc(sizeof(double), numcols);
    if((lb == NULL) || (ub == NULL)) {
 	   fprintf(stderr, "Error: Failed to allocate memory to lower/upper bounds.\n");
 	   	   goto TERMINATE;
    }
-   success = success && lp_bounds(numcols, lb, ub);
+   success = success && lp_bounds(numcols, &lb, &ub);
 
    /* If success is TRUE then ALL preparation stages were executed correctly */
    if (!success) {
@@ -149,25 +145,81 @@ int k_cluster(int k)
 	   goto TERMINATE;
    }
 
-   indices = calloc(sizeof(int*), numcols);
-   types = calloc(sizeof(char*), numcols);
-   lp_indices_types(numcols, indices, types, CPX_BINARY);
+   indices = calloc(sizeof(int), numcols);
+   types = calloc(sizeof(char), numcols);
+   lp_indices_types(numcols, &indices, &types, CPX_BINARY);
+
+   /***********************************************************************************************/
+
+
+      printf("\nnumcols = %d\nnumrows = %d\n", numcols, numrows);
+
+
+      printf("objective coeffs:\n");
+      for (i=0; i<numcols; i++) {
+   	   printf("%2.2f\t", coeffs[i]);
+      }
+      printf("\n");
+
+      printf("RHS:\n");
+      for (i=0; i<numrows; i++) {
+   	   printf("%2.2f\t", rhs[i]);
+      }
+      printf("\n");
+      printf("sense:\n");
+      for (i=0; i<numrows; i++) {
+   	   printf("%c\t", sense[i]);
+      }
+      printf("\n");
+
+      printf("matbeg:\n");
+      for (i=0; i<numcols; i++) {
+   	   printf("%d\t", matbeg[i]);
+      }
+      printf("\n");
+      printf("matcnt:\n");
+      for (i=0; i<numcols; i++) {
+   	   printf("%d\t", matcnt[i]);
+      }
+      printf("\n");
+      printf("matind:\n");
+      for (i=0; i<k * (edgesCount * 7 + nodesCount * 2); i++) {
+   	   printf("%d\t", matind[i]);
+      }
+      printf("\n");
+      printf("matval:\n");
+      for (i=0; i<k * (edgesCount * 7 + nodesCount * 2); i++) {
+   	   printf("%2.2f\t", matval[i]);
+      }
+      printf("\n");
+
+      printf("lb:\n");
+      for (i=0; i<numcols; i++) {
+   	   printf("%2.2f\t", lb[i]);
+      }
+      printf("\n");
+      printf("ub:\n");
+      for (i=0; i<numcols; i++) {
+   	   printf("%2.2f\t", ub[i]);
+      }
+      printf("\n");
+   /***********************************************************************************************/
 
    /* Use CPXcopylp to transfer the ILP part of the problem data into the cplex pointer lp */
-   status = CPXcopylp (p_env,
+   status = CPXcopylp(p_env,
 				  p_lp,
 				  numcols,
 				  numrows,
 				  CPX_MAX,
-				  *coeffs,
-				  *rhs,
-				  *sense,
-				  *matbeg,
-				  *matcnt,
-				  *matind,
-				  *matval,
-				  *lb,
-				  *ub,
+				  coeffs,
+				  rhs,
+				  sense,
+				  matbeg,
+				  matcnt,
+				  matind,
+				  matval,
+				  lb,
+				  ub,
 				  NULL);
 
    if ( status ) {
@@ -175,7 +227,7 @@ int k_cluster(int k)
 		  goto TERMINATE;
    }
 
-   status = CPXchgctype(p_env, p_lp, numcols, *indices, *types);
+   status = CPXchgctype(p_env, p_lp, numcols, indices, types);
    if ( status ) {
            fprintf (stderr, "Error: Failed to change variable type.\n");
            goto TERMINATE;
