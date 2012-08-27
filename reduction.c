@@ -38,9 +38,7 @@ bool lp_objective_function_coefficients(int k, double** coefficients) {
 	/* Z's coefficients are the edges' weights */
 	for (cluster = 0; cluster < k; cluster++) {
 		for (i = 0; i < edgesCount; i++) {
-			if (edges[i].nodeTo < edges[i].nodeFrom) {
-				*coefficients[cluster * edgesCount + i] = edges[i].weight;
-			}
+			*coefficients[cluster * edgesCount + i] = edges[i].weight;
 		}
 	}
 
