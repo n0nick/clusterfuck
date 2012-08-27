@@ -76,12 +76,14 @@ bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval)
 	int matcnt_sum = 0;
 	int* scanned; /* remembering scanned nodes per edge */
 
+	bool success = TRUE;
 	int i, j;
 
     /* allocate memory: scanned */
 	scanned = calloc(sizeof(int), nodesCount * k);
 	if (scanned == NULL) {
-		return FALSE;
+		goto TERMINATE;
+		success = FALSE;
 	}
 
 	/* populating matbeg, matcnt */
@@ -140,7 +142,9 @@ bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval)
 		(*matval)[(*matbeg)[edgesCount * k + i] + scanned[i] + 1] = 1;
 	}
 
-	return TRUE; /* absolutely */
+TERMINATE:
+	free(scanned);
+	return success; /* absolutely */
 }
 
 bool lp_bounds(int numcols, double **lb, double **ub) {

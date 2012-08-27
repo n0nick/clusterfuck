@@ -14,12 +14,17 @@
 
 /* Methods */
 bool read_data(char* inputFolder) {
-	bool success;
-
+	bool success = TRUE;
 	char* nodesPath;
 	char* edgesPath;
+
 	nodesPath = (char*)malloc(strlen(inputFolder) + 5 + 1);
 	edgesPath = (char*)malloc(strlen(inputFolder) + 5 + 1);
+	if (nodesPath == NULL || edgesPath == NULL) {
+		success = FALSE;
+		goto TERMINATE;
+	}
+
 	strcpy(nodesPath, inputFolder);
 	strcpy(edgesPath, inputFolder);
 
@@ -30,6 +35,11 @@ bool read_data(char* inputFolder) {
 	print_nodes();
 	print_edges();
 	*/
+
+TERMINATE:
+
+	free(nodesPath);
+	free(edgesPath);
 
 	return success;
 }
@@ -52,7 +62,7 @@ bool read_nodes(char* nodesPath) {
 	file_lines_count(fp, &nodesCount);
 
 	/* Initialize nodes array */
-	nodes = (node*) malloc(nodesCount * sizeof(node));
+	nodes = calloc(sizeof(ndoe), nodesCount);
 
 	/* Loop through lines, adding nodes */
 	while (fscanf(fp, "protein: %s\n", name) == 1) {

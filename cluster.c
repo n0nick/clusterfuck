@@ -14,6 +14,8 @@
 #include "cluster.h"
 #include "reduction.h"
 
+#include "node.h"
+
 /* This routine initializes the cplex enviorement, sets screen as an output for cplex errors and notifications, 
  and sets parameters for cplex. It calls for a mixed integer program solution and frees the environment.
  To Do:
@@ -26,6 +28,8 @@
 int k_cluster(int k, double *score) {
 	extern int nodesCount;
 	extern int edgesCount;
+
+	extern node* nodes;
 
 	/* Declare pointers for the variables and arrays that will contain
 	 the data which define the LP problem. */
@@ -186,18 +190,17 @@ int k_cluster(int k, double *score) {
 		goto TERMINATE;
 	}
 
-	printf("result:\n");
-	for (i=0; i<numcols; i++) {
-		printf("%2.2f ", coeffs[i]);
+	for (i = 0; i < k * nodesCount; i++) {
+		if (IS_VALUE_1(coeffs[k * nodesCount + i])) {
+			nodes[i % nodesCount].clusterID = i / nodesCount;
+		}
+	}
+
+	printf("assignment:\n");
+	for (i = 0; i < nodesCount; i++) {
+		printf("%d ", nodes[i].clusterID);
 	}
 	printf("\n");
-
-/*
-	 for (i = 0; i < k * nodesCount; i++) {
-		if (IS_VALUE_1(coeffs[k * nodesCount + i])) {
-			nodes[i % nodesCount].cluster = i / nodesCount;
-		}
-	}*/
 
 	/* Write a copy of the problem to a file. */
 	status = CPXwriteprob(p_env, p_lp, probname, NULL);
@@ -235,7 +238,18 @@ int k_cluster(int k, double *score) {
 	}
 
 	/* Free up the problem data arrays, if necessary. */
-	/* TODO */
+	free(probname);
+	free(coeffs);
+	free(sense);
+	free(rhs);
+	free(matbeg);
+	free(matcnt);
+	free(matind);
+	free(matval);
+	free(lb);
+	free(ub);
+	free(indices);
+	free(types);
 
 	return (status);
 }

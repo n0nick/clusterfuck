@@ -62,5 +62,9 @@ int main(int argc, char* argv[]) {
 		/* TODO free stuff */
 	}
 
+	/* TODO free each node's name and edges list */
+	free(nodes);
+	free(edges);
+
 	return 0;
 }
