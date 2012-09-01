@@ -181,9 +181,14 @@ bool write_upper_bound_results(char* outputFolder, int upperBound, double weight
 	success = (fprintf(fp, "\nClustering statistics for %d:\n", upperBound) > 0);
 	success = success && (fprintf(fp, "Average weight of an edge within clusters: %1.3f\n", weightIn) > 0);
 	success = success && (fprintf(fp, "Average weight of an edge between clusters: %1.3f\n", weightOut) > 0);
+
+	quicksort_scores(scores, diameters, upperBound);
+
 	for (i=0; (i<upperBound) && success; i++) {
 		fprintf(fp, "Cluster %d: score - %1.3f diameter - %d\n", i+1, scores[i], diameters[i]);
 	}
+
+
 
 	if (!success) {
 		goto TERMINATE;
@@ -246,4 +251,44 @@ bool split_names(char* names, char* name1, char* name2) {
 	name2[i - delimPos - 1] = '\0';
 
 	return (strlen(name1) && strlen(name2));
+}
+
+void quicksort_scores(double* scores, int* diameters, int N) {
+	int i, j;
+	double v, tempScore;
+	int tempDiameter;
+
+	if (N <= 1) {
+		return;
+	}
+
+	v = scores[0];
+	i = 0;
+	j = N;
+	for (;;) {
+		while (scores[++i] > v && i < N) {}
+		while (scores[--j] < v) {}
+		if (i >= j) {
+			break;
+		}
+
+		tempScore = scores[i];
+		scores[i] = scores[j];
+		scores[j] = tempScore;
+
+		tempDiameter = diameters[i];
+		diameters[i] = diameters[j];
+		diameters[j] = tempDiameter;
+	}
+
+	tempScore = scores[i - 1];
+	scores[i - 1] = scores[0];
+	scores[0] = tempScore;
+
+	tempDiameter = diameters[i - 1];
+	diameters[i - 1] = diameters[0];
+	diameters[0] = tempDiameter;
+
+	quicksort_scores(scores, diameters, i - 1);
+	quicksort_scores(scores + i, diameters + i, N - i);
 }
