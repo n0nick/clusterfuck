@@ -62,7 +62,7 @@ bool read_nodes(char* nodesPath) {
 	file_lines_count(fp, &nodesCount);
 
 	/* Initialize nodes array */
-	nodes = calloc(sizeof(ndoe), nodesCount);
+	nodes = calloc(sizeof(node), nodesCount);
 
 	/* Loop through lines, adding nodes */
 	while (fscanf(fp, "protein: %s\n", name) == 1) {
