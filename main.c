@@ -24,9 +24,9 @@ int main(int argc, char* argv[]) {
 	int lowerBound;
 	int upperBound;
 
+	bool success = TRUE;
 	int k;
 	double score;
-	bool success = TRUE;
 
 	/* parse arguments */
 	if (argc != 5) {
@@ -55,11 +55,15 @@ int main(int argc, char* argv[]) {
 
 		if ( k_cluster(k, &score) ) { /* k_cluster() failed */
 			success = FALSE;
+			goto TERMINATE;
 		}
 
+		append_clustering_result(outputFolder, k, score);
 
 		/* TODO free stuff */
 	}
+
+TERMINATE:
 
 	/* TODO free each node's name and edges list */
 	free(nodes);

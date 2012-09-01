@@ -12,31 +12,19 @@
 #include "node.h"
 #include "files.h"
 
-/* Methods */
+/* input methods */
+
 bool read_data(char* inputFolder) {
-	bool success = TRUE;
-	char* nodesPath;
-	char* edgesPath;
+	bool success;
+	char* nodesPath = NULL;
+	char* edgesPath = NULL;
 
-	nodesPath = (char*)malloc(strlen(inputFolder) + 5 + 1);
-	edgesPath = (char*)malloc(strlen(inputFolder) + 5 + 1);
-	if (nodesPath == NULL || edgesPath == NULL) {
-		success = FALSE;
-		goto TERMINATE;
+	success = (concat_path(inputFolder, "nodes", &nodesPath) && concat_path(inputFolder, "edges", &edgesPath));
+
+	if (success) {
+		success = success && read_nodes(nodesPath);
+		success = success && read_edges(edgesPath);
 	}
-
-	strcpy(nodesPath, inputFolder);
-	strcpy(edgesPath, inputFolder);
-
-	success = read_nodes(strcat(nodesPath, "nodes"));
-	success = success && read_edges(strcat(edgesPath, "edges"));
-
-	/*
-	 print_nodes();
-	 print_edges();
-	 */
-
-TERMINATE:
 
 	free(nodesPath);
 	free(edgesPath);
@@ -106,6 +94,46 @@ bool read_edges(char* edgesPath) {
 	}
 
 	return success;
+}
+
+/* output methods */
+
+
+bool append_clustering_result(char* outputFolder, int k, double score) {
+	bool success = TRUE;
+	char* resultsPath;
+	FILE * fp;
+
+	concat_path(outputFolder, "results", &resultsPath);
+
+	fp = fopen(resultsPath, "a");
+	if (fp == NULL) {
+		success = FALSE;
+		goto TERMINATE;
+	}
+
+	if (fprintf(fp, "Clustering with k=%d: %1.3f\n", k, score) < 0) {
+		success = FALSE;
+		goto TERMINATE;
+	}
+
+TERMINATE:
+	free(resultsPath);
+	return success;
+}
+
+/* helper methods */
+
+bool concat_path(char* dir, char* name, char** path) {
+	(*path) = (char*) malloc(strlen(dir) + strlen(name) + 1);
+	if ((*path) == NULL) {
+		return FALSE;
+	}
+
+	strcpy(*path, dir);
+	strcat(*path, name);
+
+	return TRUE;
 }
 
 bool file_lines_count(FILE * fp, int* count) {

@@ -13,11 +13,16 @@
 #define EDGE_PREFIX interaction
 #define EDGE_DELIMETER '-'
 
+/* input functions */
 bool read_data(char* inputFolder);
 bool read_nodes(char* nodesPath);
 bool read_edges(char* edgesPath);
 
+/* output functions */
+bool append_clustering_result(char* resultsPath, int k, double score);
+
 /* helper functions */
+bool concat_path(char* dir, char* name, char** path);
 bool file_lines_count(FILE * fp, int* count);
 bool split_names(char* names, char* name1, char* name2);
 
