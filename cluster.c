@@ -56,8 +56,6 @@ int k_cluster(int k) {
 	int **indices;
 	char **types;
 
-	int i;
-
 	/* prepare problem name */
 	probname = calloc(sizeof(char), strlen("k_cluster.LP") + 10);
 	/*TODO check calloc success */
@@ -155,7 +153,6 @@ int k_cluster(int k) {
 
 	indices = calloc(sizeof(int*), numcols);
 	types = calloc(sizeof(char*), numcols);
-	lp_indices_types(numcols, indices, types, CPX_BINARY);
 	if ((indices == NULL) || (types == NULL)) {
 		fprintf(stderr,
 				"Error: Failed to allocate memory for indices and types.\n");
