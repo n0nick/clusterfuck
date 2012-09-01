@@ -253,12 +253,3 @@ int k_cluster(int k, double *score) {
 
 	return (status);
 }
-
-/* This simple routine frees up the pointer *ptr, and sets *ptr to NULL */
-void free_and_null(char **ptr) {
-	if (*ptr != NULL) {
-		free(*ptr);
-		*ptr = NULL;
-	}
-}
-
