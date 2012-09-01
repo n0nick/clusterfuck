@@ -10,6 +10,7 @@ bool add_node(int index, char* name) {
 	nodes[index].id = index;
 	nodes[index].degree = 0;
 	nodes[index].edges = NULL;
+	nodes[index].clusterID = -1;
 	nodes[index].name = (char *) malloc(strlen(name) + 1);
 	if (nodes[index].name == NULL) {
 		perror(ERROR_MALLOC);

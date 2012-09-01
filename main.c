@@ -25,6 +25,7 @@ int main(int argc, char* argv[]) {
 	int upperBound;
 
 	int k;
+	double score;
 	bool success = TRUE;
 
 	/* parse arguments */
@@ -53,14 +54,18 @@ int main(int argc, char* argv[]) {
 	for (k = lowerBound; success && k <= upperBound; k++) {
 
 		printf("trying with k=%d...\n", k);
-		if (k_cluster(k)) { /* k_cluster() failed */
+		if ( k_cluster(k, &score) ) { /* k_cluster() failed */
 			success = FALSE;
 		}
 
-		printf("\n\n");
+		printf("\nRESSSSULT %3.3f\n====================\n", score);
 
 		/* TODO free stuff */
 	}
+
+	/* TODO free each node's name and edges list */
+	free(nodes);
+	free(edges);
 
 	return 0;
 }

@@ -14,6 +14,8 @@
 #include "cluster.h"
 #include "reduction.h"
 
+#include "node.h"
+
 /* This routine initializes the cplex enviorement, sets screen as an output for cplex errors and notifications, 
  and sets parameters for cplex. It calls for a mixed integer program solution and frees the environment.
  To Do:
@@ -23,9 +25,11 @@
  Read solution (both objective function value and variables assignment).
  Communicate to pass the problem and the solution between the modules in the best way you see.
  */
-int k_cluster(int k) {
+int k_cluster(int k, double *score) {
 	extern int nodesCount;
 	extern int edgesCount;
+
+	extern node* nodes;
 
 	/* Declare pointers for the variables and arrays that will contain
 	 the data which define the LP problem. */
@@ -44,17 +48,21 @@ int k_cluster(int k) {
 	/* problem variables */
 	int numcols;
 	int numrows;
-	double** coeffs;
-	char **sense;
-	double **rhs;
-	int **matbeg;
-	int **matcnt;
-	int **matind;
-	double **matval;
-	double **lb;
-	double **ub;
-	int **indices;
-	char **types;
+	double *coeffs;
+	char *sense;
+	double *rhs;
+	int *matbeg;
+	int *matcnt;
+	int *matind;
+	double *matval;
+	double *lb;
+	double *ub;
+	int *indices;
+	char *types;
+
+	int solutionStatus;
+
+	int i;
 
 	/* prepare problem name */
 	probname = calloc(sizeof(char), strlen("k_cluster.LP") + 10);
@@ -108,42 +116,37 @@ int k_cluster(int k) {
 	numcols = k * (nodesCount + edgesCount);
 	numrows = 3 * edgesCount * k + nodesCount + k;
 
-	coeffs = calloc(sizeof(double*), numcols);
+	coeffs = calloc(sizeof(double), numcols);
 	if (coeffs == NULL) {
 		fprintf(stderr, "Error: Failed to allocate memory to coeffs.\n");
 		goto TERMINATE;
 	}
-	success = success && lp_objective_function_coefficients(k, coeffs);
+	success = success && lp_objective_function_coefficients(k, &coeffs);
 
-	rhs = calloc(sizeof(double*), numrows);
-	sense = calloc(sizeof(char*), numrows);
-	if ((rhs == NULL) || (sense == NULL)) {
-		fprintf(stderr,
-				"Error: Failed to allocate memory to rhs and/or sense.\n");
-		goto TERMINATE;
-	}
-	success = success && lp_rhs_sense(k, rhs, sense);
+	rhs = calloc(sizeof(double), numrows);
+	sense = calloc(sizeof(char), numrows);
+	success = success && lp_rhs_sense(k, &rhs, &sense);
 
-	matbeg = calloc(sizeof(int*), numcols);
-	matcnt = calloc(sizeof(int*), numcols);
-	matind = calloc(sizeof(int*), k * (edgesCount * 7 + nodesCount * 2));
-	matval = calloc(sizeof(double*), k * (edgesCount * 7 + nodesCount * 2));
+	matbeg = calloc(sizeof(int), numcols);
+	matcnt = calloc(sizeof(int), numcols);
+	matind = calloc(sizeof(int), k * (edgesCount * 7 + nodesCount * 2));
+	matval = calloc(sizeof(double), k * (edgesCount * 7 + nodesCount * 2));
 	if ((matbeg == NULL) || (matcnt == NULL) || (matind == NULL) || (matval
 			== NULL)) {
 		fprintf(stderr,
 				"Error: Failed to allocate memory to the constraints.\n");
 		goto TERMINATE;
 	}
-	success = success && lp_matrix(k, matbeg, matcnt, matind, matval);
+	success = success && lp_matrix(k, &matbeg, &matcnt, &matind, &matval);
 
-	lb = calloc(sizeof(double*), numcols);
-	ub = calloc(sizeof(double*), numcols);
+	lb = calloc(sizeof(double), numcols);
+	ub = calloc(sizeof(double), numcols);
 	if ((lb == NULL) || (ub == NULL)) {
 		fprintf(stderr,
 				"Error: Failed to allocate memory to lower/upper bounds.\n");
 		goto TERMINATE;
 	}
-	success = success && lp_bounds(numcols, lb, ub);
+	success = success && lp_bounds(numcols, &lb, &ub);
 
 	/* If success is TRUE then ALL preparation stages were executed correctly */
 	if (!success) {
@@ -151,18 +154,13 @@ int k_cluster(int k) {
 		goto TERMINATE;
 	}
 
-	indices = calloc(sizeof(int*), numcols);
-	types = calloc(sizeof(char*), numcols);
-	if ((indices == NULL) || (types == NULL)) {
-		fprintf(stderr,
-				"Error: Failed to allocate memory for indices and types.\n");
-		goto TERMINATE;
-	}
-	success = success && lp_indices_types(numcols, indices, types, CPX_BINARY);
+	indices = calloc(sizeof(int), numcols);
+	types = calloc(sizeof(char), numcols);
+	lp_indices_types(numcols, &indices, &types, CPX_BINARY);
 
 	/* Use CPXcopylp to transfer the ILP part of the problem data into the cplex pointer lp */
-	status = CPXcopylp(p_env, p_lp, numcols, numrows, CPX_MAX, *coeffs, *rhs,
-			*sense, *matbeg, *matcnt, *matind, *matval, *lb, *ub, NULL);
+	status = CPXcopylp(p_env, p_lp, numcols, numrows, CPX_MAX, coeffs, rhs,
+			sense, matbeg, matcnt, matind, matval, lb, ub, NULL);
 
 	if (status) {
 		fprintf(
@@ -171,7 +169,7 @@ int k_cluster(int k) {
 		goto TERMINATE;
 	}
 
-	status = CPXchgctype(p_env, p_lp, numcols, *indices, *types);
+	status = CPXchgctype(p_env, p_lp, numcols, indices, types);
 	if (status) {
 		fprintf(stderr, "Error: Failed to change variable type.\n");
 		goto TERMINATE;
@@ -183,6 +181,26 @@ int k_cluster(int k) {
 		fprintf(stderr, "Error: Failed to optimize problem.\n");
 		goto TERMINATE;
 	}
+
+	/* Create the solution */
+	status = CPXsolution(p_env, p_lp, &solutionStatus, score, coeffs, NULL,
+			NULL, NULL);
+	if (status) {
+		fprintf(stderr, "Error: Failed to read solution.\n");
+		goto TERMINATE;
+	}
+
+	for (i = 0; i < k * nodesCount; i++) {
+		if (IS_VALUE_1(coeffs[k * nodesCount + i])) {
+			nodes[i % nodesCount].clusterID = i / nodesCount;
+		}
+	}
+
+	printf("assignment:\n");
+	for (i = 0; i < nodesCount; i++) {
+		printf("%d ", nodes[i].clusterID);
+	}
+	printf("\n");
 
 	/* Write a copy of the problem to a file. */
 	status = CPXwriteprob(p_env, p_lp, probname, NULL);
@@ -220,7 +238,18 @@ int k_cluster(int k) {
 	}
 
 	/* Free up the problem data arrays, if necessary. */
-	/* TODO */
+	free(probname);
+	free(coeffs);
+	free(sense);
+	free(rhs);
+	free(matbeg);
+	free(matcnt);
+	free(matind);
+	free(matval);
+	free(lb);
+	free(ub);
+	free(indices);
+	free(types);
 
 	return (status);
 }

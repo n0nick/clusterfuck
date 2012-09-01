@@ -1,6 +1,8 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
+#define IS_VALUE_1(X) ((1 - X) < 0.001)
+
 /* You may and should alter the file */
 
 /* Bring in the CPLEX function declarations and the C library 

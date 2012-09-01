@@ -20,6 +20,7 @@ struct node {
 	unsigned int id;
 	char* name;
 	unsigned int degree;
+	int clusterID;
 	edge* edges;
 };
 
