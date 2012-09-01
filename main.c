@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
 	double score;
 
 	double weightIn, weightOut;
+	double* scores;
 
 	/* parse arguments */
 	if (argc != 5) {
@@ -72,17 +73,19 @@ int main(int argc, char* argv[]) {
 		goto TERMINATE;
 	}
 
-	/* call statistic functions */
-	success = avg_edge_weights(&weightIn, &weightOut);
+	/* calculate statistic values */
+	scores = calloc(sizeof(double), upperBound);
+	success = clustering_statistics(&weightIn, &weightOut, scores);
 
 	/* finish the 'results' file */
-	success = success && write_upper_bound_results(outputFolder, upperBound, weightIn, weightOut);
+	success = success && write_upper_bound_results(outputFolder, upperBound, weightIn, weightOut, scores);
 
 TERMINATE:
 
 	/* TODO free each node's name and edges list */
 	free(nodes);
 	free(edges);
+	free(scores);
 
 	return 0;
 }

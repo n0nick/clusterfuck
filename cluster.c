@@ -248,7 +248,7 @@ TERMINATE:
 	return (status);
 }
 
-bool avg_edge_weights(double* inside, double* outside) {
+bool clustering_statistics(double* insideAvg, double* outsideAvg, double* scores) {
 	extern node* nodes;
 	extern edge* edges;
 	extern int edgesCount;
@@ -256,26 +256,28 @@ bool avg_edge_weights(double* inside, double* outside) {
 	int i;
 	int countIn = 0;
 	int countOut = 0;
-	*inside = 0;
-	*outside = 0;
+	*insideAvg = 0;
+	*outsideAvg = 0;
 
 	for (i=0; i<edgesCount; i++) {
 		if (nodes[edges[i].nodeFrom].clusterID == nodes[edges[i].nodeTo].clusterID) {
 			/* inside a cluster */
-			(*inside) += edges[i].weight;
+			(*insideAvg) += edges[i].weight;
 			countIn++;
+
+			scores[nodes[edges[i].nodeFrom].clusterID]+= edges[i].weight;
 		} else {
 			/* between clusters */
-			(*outside) += edges[i].weight;
+			(*outsideAvg) += edges[i].weight;
 			countOut++;
 		}
 	}
 
 	if (countIn != 0) {
-		(*inside) /= countIn;
+		(*insideAvg) /= countIn;
 	}
 	if (countOut != 0) {
-		(*outside) /= countOut;
+		(*outsideAvg) /= countOut;
 	}
 
 	return TRUE;

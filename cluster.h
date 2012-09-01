@@ -17,6 +17,6 @@
 
 /* Include declaration for functions */
 int  k_cluster();
-bool avg_edge_weights(double* inside, double* outside);
+bool clustering_statistics(double* insideAvg, double* outsideAvg, double* scores);
 
 #endif

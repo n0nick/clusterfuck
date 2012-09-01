@@ -142,7 +142,7 @@ TERMINATE:
 	return success;
 }
 
-bool write_upper_bound_results(char* outputFolder, int upperBound, double weightIn, double weightOut) {
+bool write_upper_bound_results(char* outputFolder, int upperBound, double weightIn, double weightOut, double* scores) {
 
 	extern node* nodes;
 	extern int nodesCount;
@@ -180,6 +180,9 @@ bool write_upper_bound_results(char* outputFolder, int upperBound, double weight
 	success = (fprintf(fp, "\nClustering statistics for %d:\n", upperBound) > 0);
 	success = success && (fprintf(fp, "Average weight of an edge within clusters: %1.3f\n", weightIn) > 0);
 	success = success && (fprintf(fp, "Average weight of an edge between clusters: %1.3f\n", weightOut) > 0);
+	for (i=0; (i<upperBound) && success; i++) {
+		fprintf(fp, "Cluster %d: score - %1.3f diameter - %d\n", i+1, scores[i], 0);
+	}
 
 	if (!success) {
 		goto TERMINATE;
