@@ -13,7 +13,10 @@
 /* Bring in the declarations for the string functions */
 #include <string.h>
 
+#include "consts.h"
+
 /* Include declaration for functions */
 int  k_cluster();
+bool avg_edge_weights(double* inside, double* outside);
 
 #endif

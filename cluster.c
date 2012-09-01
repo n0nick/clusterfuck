@@ -3,7 +3,7 @@
 /*  Version 1.0                                                           */
 /*------------------------------------------------------------------------*/
 /*  Written for Software Project Class.                                   */
-/*  Based uopn qpex1.c                                                    */
+/*  Based upon qpex1.c                                                    */
 /*  Permission is expressly granted to use this example in the            */
 /*  course of developing applications that use ILOG products.             */
 /*------------------------------------------------------------------------*/
@@ -246,4 +246,37 @@ TERMINATE:
 	free(types);
 
 	return (status);
+}
+
+bool avg_edge_weights(double* inside, double* outside) {
+	extern node* nodes;
+	extern edge* edges;
+	extern int edgesCount;
+
+	int i;
+	int countIn = 0;
+	int countOut = 0;
+	*inside = 0;
+	*outside = 0;
+
+	for (i=0; i<edgesCount; i++) {
+		if (nodes[edges[i].nodeFrom].clusterID == nodes[edges[i].nodeTo].clusterID) {
+			/* inside a cluster */
+			(*inside) += edges[i].weight;
+			countIn++;
+		} else {
+			/* between clusters */
+			(*outside) += edges[i].weight;
+			countOut++;
+		}
+	}
+
+	if (countIn != 0) {
+		(*inside) /= countIn;
+	}
+	if (countOut != 0) {
+		(*outside) /= countOut;
+	}
+
+	return TRUE;
 }

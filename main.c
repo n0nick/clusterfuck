@@ -28,6 +28,8 @@ int main(int argc, char* argv[]) {
 	int k;
 	double score;
 
+	double weightIn, weightOut;
+
 	/* parse arguments */
 	if (argc != 5) {
 		perror(
@@ -70,8 +72,11 @@ int main(int argc, char* argv[]) {
 		goto TERMINATE;
 	}
 
+	/* call statistic functions */
+	success = avg_edge_weights(&weightIn, &weightOut);
+
 	/* finish the 'results' file */
-	success = write_upper_bound_results(outputFolder, upperBound);
+	success = success && write_upper_bound_results(outputFolder, upperBound, weightIn, weightOut);
 
 TERMINATE:
 
