@@ -118,6 +118,7 @@ bool append_clustering_result(char* outputFolder, int k, double score) {
 	}
 
 TERMINATE:
+	fclose(fp);
 	free(resultsPath);
 	return success;
 }

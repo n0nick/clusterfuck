@@ -24,3 +24,4 @@ data
 
 # CPLEX generated logs
 cplex.log
+*.LP
