@@ -49,9 +49,11 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	/* reading input and initializing output folder */
 	success = read_data(inputFolder);
 	success = success && init_output_folder(outputFolder);
 
+	/* for each cluster, find a solution and save result */
 	for (k = lowerBound; success && k <= upperBound; k++) {
 
 		if ( k_cluster(k, &score) ) { /* k_cluster() failed */
@@ -63,6 +65,13 @@ int main(int argc, char* argv[]) {
 
 		/* TODO free stuff */
 	}
+
+	if (!success) {
+		goto TERMINATE;
+	}
+
+	/* finish the 'results' file */
+	success = write_upper_bound_results(outputFolder, upperBound);
 
 TERMINATE:
 

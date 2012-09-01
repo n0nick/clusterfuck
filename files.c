@@ -142,6 +142,50 @@ TERMINATE:
 	return success;
 }
 
+bool write_upper_bound_results(char* outputFolder, int upperBound) {
+
+	extern node* nodes;
+	extern int nodesCount;
+	extern edge* edges;
+	extern int edgesCount;
+
+	bool success = TRUE;
+	char* resultsPath;
+	FILE * fp;
+	int i;
+
+	concat_path(outputFolder, "results", &resultsPath);
+
+	fp = fopen(resultsPath, "a");
+	if (fp == NULL) {
+		success = FALSE;
+		goto TERMINATE;
+	}
+
+	success = (fprintf(fp, "\nThe clustered network for k=%d:\n", upperBound) > 0);
+
+	/* nodes list */
+	success = success && (fprintf(fp, "%d vertices:\n", nodesCount) > 0);
+	for (i=0; (i<nodesCount) && success; i++) {
+		success = success && (fprintf(fp, "%d: %s %d\n", i+1, nodes[i].name, nodes[i].clusterID+1));
+	}
+
+	/* edges list */
+	success = success && (fprintf(fp, "%d edges:\n", edgesCount));
+	for (i=0; (i<edgesCount) && success; i++) {
+		success = success && (fprintf(fp, "%d: %s-%s %1.3f\n", i+1, nodes[edges[i].nodeFrom].name, nodes[edges[i].nodeTo].name, edges[i].weight));
+	}
+
+	if (!success) {
+		goto TERMINATE;
+	}
+
+TERMINATE:
+	fclose(fp);
+	free(resultsPath);
+	return success;
+}
+
 /* helper methods */
 
 bool concat_path(char* dir, char* name, char** path) {
