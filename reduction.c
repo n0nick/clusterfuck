@@ -68,12 +68,12 @@ bool lp_rhs_sense(int k, double** rhs, char** sense) {
 
 	/* constraints 1, 2 */
 	for (i = 0; i < (edgesCount * k); i++) {
-		*sense[3*i] = 'L';
-		*sense[3*i+1] = 'L';
-		*sense[3*i+2] = 'G';
-		*rhs[3*i] = 0;
-		*rhs[3*i+1] = 0;
-		*rhs[3*i+2] = -1;
+		*sense[3 * i] = 'L';
+		*sense[3 * i + 1] = 'L';
+		*sense[3 * i + 2] = 'G';
+		*rhs[3 * i] = 0;
+		*rhs[3 * i + 1] = 0;
+		*rhs[3 * i + 2] = -1;
 	}
 
 	/* constraint 3 */
@@ -106,7 +106,7 @@ bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval)
 	int i, j;
 
 	/* allocate memory: matbeg, matcnt */
-	for (i=0; (i < k * (edgesCount + nodesCount)) && success; i++) {
+	for (i = 0; (i < k * (edgesCount + nodesCount)) && success; i++) {
 		matbeg[i] = calloc(sizeof(int), 1);
 		matcnt[i] = calloc(sizeof(int), 1);
 		success = (matbeg[i] != NULL && matcnt[i] != NULL);
@@ -114,7 +114,7 @@ bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval)
 
 	/* allocate memory: matind, matval */
 	if (success) {
-		for (i=0; (i < k * (edgesCount * 7 + nodesCount * 2)) && success; i++) {
+		for (i = 0; (i < k * (edgesCount * 7 + nodesCount * 2)) && success; i++) {
 			matind[i] = calloc(sizeof(int), 1);
 			matval[i] = calloc(sizeof(double), 1);
 			success = (matind[i] != NULL && matval[i] != NULL);
@@ -157,20 +157,20 @@ bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval)
 
 		/* vertex offsets in the variables of type X */
 		edgeOffset1 = edges[edgeId].nodeTo + nodesCount * clusterId;
-		edgeOffset2 = edges[edgeId].nodeFrom + nodesCount*clusterId;
+		edgeOffset2 = edges[edgeId].nodeFrom + nodesCount * clusterId;
 
 		beg1 = *matbeg[edgesCount * k + edgeOffset1];
 		beg2 = *matbeg[edgesCount * k + edgeOffset2];
 
-		*matind[beg1 + scanned[edgeOffset1]] = 3*i;
-		*matind[beg2 + scanned[edgeOffset2]] = 3*i+1;
-		*matind[beg1 + scanned[edgeOffset1]+1] = 3*i+2;
-		*matind[beg2 + scanned[edgeOffset2]+1] = 3*i+2;
+		*matind[beg1 + scanned[edgeOffset1]] = 3 * i;
+		*matind[beg2 + scanned[edgeOffset2]] = 3 * i + 1;
+		*matind[beg1 + scanned[edgeOffset1] + 1] = 3 * i + 2;
+		*matind[beg2 + scanned[edgeOffset2] + 1] = 3 * i + 2;
 
 		*matval[beg1 + scanned[edgeOffset1]] = -1;
 		*matval[beg2 + scanned[edgeOffset2]] = -1;
-		*matval[beg1 + scanned[edgeOffset1]+1] = -1;
-		*matval[beg2 + scanned[edgeOffset2]+1] = -1;
+		*matval[beg1 + scanned[edgeOffset1] + 1] = -1;
+		*matval[beg2 + scanned[edgeOffset2] + 1] = -1;
 
 		scanned[edgeOffset1] += 2;
 		scanned[edgeOffset2] += 2;
@@ -195,7 +195,7 @@ bool lp_bounds(int numcols, double **lb, double **ub) {
 	bool success = TRUE;
 
 	/* allocate memory */
-	for (i=0; (i < numcols) && success; i++) {
+	for (i = 0; (i < numcols) && success; i++) {
 		lb[i] = calloc(sizeof(double), 1);
 		ub[i] = calloc(sizeof(double), 1);
 		success = (lb[i] != NULL && ub[i] != NULL);
@@ -206,7 +206,7 @@ bool lp_bounds(int numcols, double **lb, double **ub) {
 	}
 
 	/* populate lb (all 0's) and ub (all 1's) */
-	for (i=0; i < numcols; i++) {
+	for (i = 0; i < numcols; i++) {
 		*lb[i] = 0;
 		*ub[i] = 1;
 	}
@@ -219,7 +219,7 @@ bool lp_indices_types(int numcols, int **indices, char **types, char type) {
 	bool success = TRUE;
 
 	/* allocate memory */
-	for (i=0; (i < numcols) && success; i++) {
+	for (i = 0; (i < numcols) && success; i++) {
 		indices[i] = calloc(sizeof(int), 1);
 		types[i] = calloc(sizeof(char), 1);
 		success = (indices[i] != NULL && types[i] != NULL);
@@ -228,7 +228,7 @@ bool lp_indices_types(int numcols, int **indices, char **types, char type) {
 	if (!success) { /* one of the calloc() failed */
 		return FALSE;
 	}
-	for (i=0; i < numcols; i++) {
+	for (i = 0; i < numcols; i++) {
 		*indices[i] = i;
 		*types[i] = type;
 	}

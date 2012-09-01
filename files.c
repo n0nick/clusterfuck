@@ -18,8 +18,8 @@ bool read_data(char* inputFolder) {
 
 	char* nodesPath;
 	char* edgesPath;
-	nodesPath = (char*)malloc(strlen(inputFolder) + 5 + 1);
-	edgesPath = (char*)malloc(strlen(inputFolder) + 5 + 1);
+	nodesPath = (char*) malloc(strlen(inputFolder) + 5 + 1);
+	edgesPath = (char*) malloc(strlen(inputFolder) + 5 + 1);
 	strcpy(nodesPath, inputFolder);
 	strcpy(edgesPath, inputFolder);
 
@@ -27,9 +27,9 @@ bool read_data(char* inputFolder) {
 	success = success && read_edges(strcat(edgesPath, "edges"));
 
 	/*
-	print_nodes();
-	print_edges();
-	*/
+	 print_nodes();
+	 print_edges();
+	 */
 
 	return success;
 }
@@ -39,7 +39,7 @@ bool read_nodes(char* nodesPath) {
 
 	FILE * fp;
 	int i = 0;
-	char name [MAX_LINE_LENGTH];
+	char name[MAX_LINE_LENGTH];
 
 	/* open file */
 	fp = fopen(nodesPath, "r");
@@ -65,9 +65,9 @@ bool read_edges(char* edgesPath) {
 	extern edge* edges;
 	extern int edgesCount;
 
-	char name1 [MAX_LINE_LENGTH];
-	char name2 [MAX_LINE_LENGTH];
-	char names [MAX_LINE_LENGTH];
+	char name1[MAX_LINE_LENGTH];
+	char name2[MAX_LINE_LENGTH];
+	char names[MAX_LINE_LENGTH];
 	int idx1;
 	int idx2;
 	float weight;
@@ -90,7 +90,7 @@ bool read_edges(char* edgesPath) {
 	/* Loop through lines, adding nodes */
 	while (success && (fscanf(fp, "interaction: %s %f\n", names, &weight) == 2)) {
 		success = split_names(names, name1, name2);
-		if(success && lookup_node(name1, &idx1) && lookup_node(name2, &idx2)) {
+		if (success && lookup_node(name1, &idx1) && lookup_node(name2, &idx2)) {
 			success = add_edge(idx1, idx2, weight);
 		}
 	}
@@ -119,7 +119,7 @@ bool split_names(char* names, char* name1, char* name2) {
 	int i;
 	int delimPos = -1;
 
-	for (i=0; i<strlen(names); i++) {
+	for (i = 0; i < strlen(names); i++) {
 		if (names[i] == EDGE_DELIMETER) {
 			delimPos = i;
 		} else {

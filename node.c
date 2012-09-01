@@ -226,8 +226,8 @@ bool print_edges() {
 		while (currEdge != NULL && printf_result >= 0) {
 			if (i < currEdge->nodeTo) { /* to conform with supplied tests */
 				printf_result = printf("%s %s %f\n",
-						nodes[currEdge->nodeTo].name, nodes[currEdge->nodeFrom].name,
-						currEdge->weight);
+						nodes[currEdge->nodeTo].name,
+						nodes[currEdge->nodeFrom].name, currEdge->weight);
 			}
 			currEdge = currEdge->next;
 		}

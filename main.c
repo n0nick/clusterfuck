@@ -29,7 +29,8 @@ int main(int argc, char* argv[]) {
 
 	/* parse arguments */
 	if (argc != 5) {
-		perror("Usage: kcluster <inputFolder> <outputFolder> <lowerBound> <upperBound>\n");
+		perror(
+				"Usage: kcluster <inputFolder> <outputFolder> <lowerBound> <upperBound>\n");
 		return 1;
 	}
 	inputFolder = argv[1];
@@ -52,7 +53,7 @@ int main(int argc, char* argv[]) {
 	for (k = lowerBound; success && k <= upperBound; k++) {
 
 		printf("trying with k=%d...\n", k);
-		if ( k_cluster(k) ) { /* k_cluster() failed */
+		if (k_cluster(k)) { /* k_cluster() failed */
 			success = FALSE;
 		}
 
