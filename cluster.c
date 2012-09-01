@@ -191,7 +191,7 @@ int k_cluster(int k, double *score) {
 	}
 
 	for (i = 0; i < k * nodesCount; i++) {
-		if (IS_VALUE_1(coeffs[k * nodesCount + i])) {
+		if (IS_VALUE_1(coeffs[k * edgesCount + i])) {
 			nodes[i % nodesCount].clusterID = i / nodesCount;
 		}
 	}
