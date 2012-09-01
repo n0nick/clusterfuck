@@ -17,11 +17,11 @@
 /* This routine initializes the cplex enviorement, sets screen as an output for cplex errors and notifications, 
    and sets parameters for cplex. It calls for a mixed integer program solution and frees the environment.
    To Do:
-   Declare the parameters for the problem and fill them accordingly. After creating the program thus, copy it into cplex. 
-   Define any integer or binary variables as needed, and change their type before the call to CPXmipopt to solve problem. 
+   Declare the parameters for the problem and fill them accordingly. After creating the program thus, copy it into cplex.
+   Define any integer or binary variables as needed, and change their type before the call to CPXmipopt to solve problem.
    Use CPXwriteprob to output the problem in lp format, in the name of <k>.lp.
-   Read solution (both objective function value and variables assignment). 
-   Communicate to pass the problem and the solution between the modules in the best way you see. 
+   Read solution (both objective function value and variables assignment).
+   Communicate to pass the problem and the solution between the modules in the best way you see.
 */
 int k_cluster(int k)
 {
@@ -56,7 +56,7 @@ int k_cluster(int k)
    double    **ub;
    int       **indices;
    char      **types;
-   
+
    int i;
 
    /* prepare problem name */
@@ -152,6 +152,11 @@ int k_cluster(int k)
    indices = calloc(sizeof(int*), numcols);
    types = calloc(sizeof(char*), numcols);
    lp_indices_types(numcols, indices, types, CPX_BINARY);
+   if ((indices == NULL) || (types == NULL)) {
+      fprintf(stderr, "Error: Failed to allocate memory for indices and types.\n");
+      goto TERMINATE;
+   }
+   success = success && lp_indices_types(numcols, indices, types, CPX_BINARY);
 
    /* Use CPXcopylp to transfer the ILP part of the problem data into the cplex pointer lp */
    status = CPXcopylp (p_env,
@@ -226,7 +231,7 @@ TERMINATE:
    /* TODO */
 
    return (status);
-}  
+}
 
 
 /* This simple routine frees up the pointer *ptr, and sets *ptr to NULL */
@@ -236,6 +241,6 @@ void free_and_null (char **ptr)
       free (*ptr);
       *ptr = NULL;
    }
-} 
+}
 
 
