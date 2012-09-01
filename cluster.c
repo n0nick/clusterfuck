@@ -196,12 +196,6 @@ int k_cluster(int k, double *score) {
 		}
 	}
 
-	printf("assignment:\n");
-	for (i = 0; i < nodesCount; i++) {
-		printf("%d ", nodes[i].clusterID);
-	}
-	printf("\n");
-
 	/* Write a copy of the problem to a file. */
 	status = CPXwriteprob(p_env, p_lp, probname, NULL);
 	if (status) {
