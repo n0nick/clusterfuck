@@ -3,7 +3,7 @@
 /*  Version 1.0                                                           */
 /*------------------------------------------------------------------------*/
 /*  Written for Software Project Class.                                   */
-/*  Based upon qpex1.c                                                    */
+/*  Based uopn qpex1.c                                                    */
 /*  Permission is expressly granted to use this example in the            */
 /*  course of developing applications that use ILOG products.             */
 /*------------------------------------------------------------------------*/

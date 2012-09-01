@@ -14,10 +14,10 @@ LDFLAGS+= -lxml2
 all: kcluster
 
 clean:
-	rm cluster.o kcluster main.o files.o node.o
+	rm cluster.o kcluster main.o files.o node.o reduction.o queue.o diameter.o
 
-kcluster: main.o cluster.o node.o files.o reduction.o
-	gcc -o kcluster main.o cluster.o node.o files.o reduction.o $(CFLAGS) $(LDFLAGS)
+kcluster: main.o cluster.o node.o files.o reduction.o queue.o diameter.o
+	gcc -o kcluster main.o cluster.o node.o files.o reduction.o queue.o diameter.o $(CFLAGS) $(LDFLAGS)
 
 main.o: main.c
 	gcc -c main.c $(CFLAGS)
@@ -33,3 +33,9 @@ files.o: files.h files.c
 	
 reduction.o: reduction.h reduction.c
 	gcc -c reduction.c $(CFLAGS)
+	
+queue.o: queue.h queue.c
+	gcc -c queue.c $(CFLAGS)
+	
+diameter.o: diameter.h diameter.c
+	gcc -c diameter.c $(CFLAGS)
