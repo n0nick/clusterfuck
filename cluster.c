@@ -203,7 +203,7 @@ int k_cluster(int k, double *score) {
 		goto TERMINATE;
 	}
 
-	TERMINATE:
+TERMINATE:
 
 	/* Free up the problem as allocated by CPXcreateprob, if necessary */
 	if (p_lp != NULL) {

@@ -50,6 +50,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	success = read_data(inputFolder);
+	success = success && init_output_folder(outputFolder);
 
 	for (k = lowerBound; success && k <= upperBound; k++) {
 
@@ -58,7 +59,7 @@ int main(int argc, char* argv[]) {
 			goto TERMINATE;
 		}
 
-		append_clustering_result(outputFolder, k, score);
+		success = append_clustering_result(outputFolder, k, score);
 
 		/* TODO free stuff */
 	}

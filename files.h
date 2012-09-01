@@ -19,6 +19,7 @@ bool read_nodes(char* nodesPath);
 bool read_edges(char* edgesPath);
 
 /* output functions */
+bool init_output_folder(char* outputFolder);
 bool append_clustering_result(char* resultsPath, int k, double score);
 
 /* helper functions */

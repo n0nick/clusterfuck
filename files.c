@@ -98,6 +98,25 @@ bool read_edges(char* edgesPath) {
 
 /* output methods */
 
+bool init_output_folder(char* outputFolder) {
+	bool success = TRUE;
+	FILE * fp;
+	char* resultsPath;
+
+	concat_path(outputFolder, "results", &resultsPath);
+
+	/* open the 'results' file with the 'w' flag so that its content is reset */
+	fp = fopen(resultsPath, "w");
+	if (fp == NULL) {
+		success = FALSE;
+		goto TERMINATE;
+	}
+
+TERMINATE:
+	fclose(fp);
+	free(resultsPath);
+	return success;
+}
 
 bool append_clustering_result(char* outputFolder, int k, double score) {
 	bool success = TRUE;
