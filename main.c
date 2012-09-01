@@ -10,6 +10,7 @@
 #include "node.h"
 #include "files.h"
 #include "cluster.h"
+#include "diameter.h"
 
 /* Global variables */
 node* nodes = NULL;
@@ -30,6 +31,8 @@ int main(int argc, char* argv[]) {
 
 	double weightIn, weightOut;
 	double* scores;
+	int* diameters;
+	int i;
 
 	/* parse arguments */
 	if (argc != 5) {
@@ -77,8 +80,13 @@ int main(int argc, char* argv[]) {
 	scores = calloc(sizeof(double), upperBound);
 	success = clustering_statistics(&weightIn, &weightOut, scores);
 
+	diameters = calloc(sizeof(int), upperBound);
+	for(i = 0 ; i<upperBound ;i++) {
+		diameters[i] = cluster_diameter(i);
+	}
+
 	/* finish the 'results' file */
-	success = success && write_upper_bound_results(outputFolder, upperBound, weightIn, weightOut, scores);
+	success = success && write_upper_bound_results(outputFolder, upperBound, weightIn, weightOut, scores, diameters);
 
 TERMINATE:
 

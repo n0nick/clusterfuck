@@ -12,12 +12,14 @@ typedef struct queue queue;
 
 struct queue {
     int count;
+    int first;
     int* values;
 };
 
 
-void init_queue(queue *q);
-void push(queue *q, int x);
-int pop(queue *q);
+void queue_init(queue *q);
+void queue_push(queue *q, int x);
+int queue_pop(queue *q);
+void queue_free(queue *q);
 
 #endif /* queueFUCK */

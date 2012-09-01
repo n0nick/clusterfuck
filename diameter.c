@@ -18,27 +18,28 @@ int node_cluster_diameter(int nodeID, int* visited) {
 	int i, u, v, max;
 	edge* currEdge;
 
-	init_queue(&q);
+	queue_init(&q);
 
 	for (i = 0; i < nodesCount; i++) {
 		visited[i] = -1;
 	}
 
 	visited[nodeID] = 0;
-	push(&q, nodeID);
+	queue_push(&q, nodeID);
 
 	while (q.count != 0) {
-		u = pop(&q);
+		u = queue_pop(&q);
 
 		currEdge = nodes[u].edges;
 		while (currEdge != NULL) {
 			v = currEdge->nodeTo;
-			if (nodes[v].clusterID == nodes[nodeID].clusterID &&
-					visited[v] == -1) {
-				visited[v] = visited[u] + 1;
-				push(&q, v);
+			if (v < currEdge->nodeFrom) {
+				if (nodes[v].clusterID == nodes[nodeID].clusterID && visited[v]
+						== -1) {
+					visited[v] = visited[u] + 1;
+					queue_push(&q, v);
+				}
 			}
-
 			currEdge = currEdge->next;
 		}
 	}
@@ -50,6 +51,8 @@ int node_cluster_diameter(int nodeID, int* visited) {
 			max = visited[i];
 		}
 	}
+
+	queue_free(&q);
 
 	return max;
 }

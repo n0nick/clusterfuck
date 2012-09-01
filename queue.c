@@ -1,21 +1,29 @@
 #include <stdlib.h>
 #include "queue.h"
 
-void init_queue(queue *q) {
+void queue_init(queue *q) {
 	q->count = 0;
+	q->first = 0;
 }
 
-void push(queue *q, int x) {
+void queue_push(queue *q, int x) {
+	if (q->count == 0 && q->first == 0) {
+		q->values = calloc(sizeof(int), 1);
+	} else {
+		q->values = (int*) realloc(q->values, q->count + q->first + 1);
+	}
+	q->values[q->count + q->first] = x;
 	q->count++;
-	q->values = (int*) realloc(q->values, q->count);
-	q->values[q->count - 1] = x;
 }
 
-int pop(queue *q) {
-	int x = q->values[0];
+int queue_pop(queue *q) {
+	int x = q->values[q->first];
 
-	/*TODO memory leak?! */
-	q->values = (q->values) + sizeof(int);
+	q->first++;
 	q->count--;
 	return x;
+}
+
+void queue_free(queue *q) {
+	free(q->values);
 }
