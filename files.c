@@ -185,7 +185,7 @@ bool write_upper_bound_results(char* outputFolder, int upperBound, double weight
 	success = success && (fprintf(fp, "Average weight of an edge within clusters: %1.3f\n", weightIn) > 0);
 	success = success && (fprintf(fp, "Average weight of an edge between clusters: %1.3f\n", weightOut) > 0);
 
-	quicksort_scores(scores, diameters, upperBound);
+	quicksort_cluster_scores(scores, diameters, upperBound);
 
 	for (i=0; (i<upperBound) && success; i++) {
 		fprintf(fp, "Cluster %d: score - %1.3f diameter - ", i+1, scores[i]);
@@ -261,7 +261,7 @@ bool split_names(char* names, char* name1, char* name2) {
 	return (strlen(name1) && strlen(name2));
 }
 
-void quicksort_scores(double* scores, int* diameters, int N) {
+void quicksort_cluster_scores(double* scores, int* diameters, int N) {
 	int i, j;
 	double v, tempScore;
 	int tempDiameter;
@@ -297,6 +297,45 @@ void quicksort_scores(double* scores, int* diameters, int N) {
 	diameters[i - 1] = diameters[0];
 	diameters[0] = tempDiameter;
 
-	quicksort_scores(scores, diameters, i - 1);
-	quicksort_scores(scores + i, diameters + i, N - i);
+	quicksort_cluster_scores(scores, diameters, i - 1);
+	quicksort_cluster_scores(scores + i, diameters + i, N - i);
+}
+
+void quicksort_cluster_sizes(double* sizes, int* ids, int N) {
+	int i, j;
+	int v, tempSize, tempId;
+
+	if (N <= 1) {
+		return;
+	}
+
+	v = sizes[0];
+	i = 0;
+	j = N;
+	for (;;) {
+		while (sizes[++i] > v && i < N) {}
+		while (sizes[--j] < v) {}
+		if (i >= j) {
+			break;
+		}
+
+		tempSize = sizes[i];
+		sizes[i] = sizes[j];
+		sizes[j] = tempSize;
+
+		tempId = ids[i];
+		ids[i] = ids[j];
+		ids[j] = tempId;
+	}
+
+	tempSize = sizes[i - 1];
+	sizes[i - 1] = sizes[0];
+	sizes[0] = tempSize;
+
+	tempId = ids[i - 1];
+	ids[i - 1] = ids[0];
+	ids[0] = tempId;
+
+	quicksort_cluster_sizes(sizes, ids, i - 1);
+	quicksort_cluster_sizes(sizes + i, ids + i, N - i);
 }

@@ -125,6 +125,11 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
 	char* filename;
 	char* path = NULL;
 
+	int* clusterIds;
+	int* clusterSizes;
+
+	int i;
+
 	label = calloc(sizeof(char), strlen("_clustering_solution") + 8 + 1);
 	success = (label != NULL);
 	success = success && (sprintf(label, "%d_clustering_solution", k) > 0);
@@ -143,7 +148,13 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
     xmlSetProp(xmlDocGetRootElement(stub),BAD_CAST "label", BAD_CAST label);
 
     /* update clusters data */
+	clusterIds = calloc(sizeof(int), k);
+	clusterSizes = calloc(sizeof(int), k);
+	clusters_list(k, clusterIds, clusterSizes);
     /*TODO */
+	for (i=0; i<k; i++) {
+		printf("%d %d\n", clusterIds[i], clusterSizes[i]);
+	}
 
     /* save file */
     xmlSaveFileEnc(path, stub, "UTF-8");
@@ -151,6 +162,32 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
 TERMINATE:
 	free(label);
 	free(filename);
+	free(clusterIds);
+	free(clusterSizes);
 
 	return success;
+}
+
+bool clusters_list(int clustersCount, int* clusterIds, int* clusterSizes) {
+	extern node* nodes;
+	extern int nodeCount;
+
+	int i;
+
+	if (clusterIds == NULL || clusterSizes == NULL) {
+		return FALSE;
+	}
+
+	for (i=0; i<clustersCount; i++) {
+		clusterIds[i] = i;
+		clusterSizes[i] = 0;
+	}
+
+	for (i=0; i<nodesCount; i++) {
+		clusterSizes[nodes[i].clusterID]++;
+	}
+
+	quicksort_cluster_sizes(sizes, ids, clustersCount);
+
+	return TRUE;
 }
