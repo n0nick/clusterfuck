@@ -69,6 +69,8 @@ int main(int argc, char* argv[]) {
 
 		success = append_clustering_result(outputFolder, k, score);
 
+		success = success && write_xgmml_file(k);
+
 		/* TODO free stuff */
 	}
 
