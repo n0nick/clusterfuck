@@ -7,10 +7,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <libxml/tree.h>
 #include "node.h"
 #include "files.h"
 #include "cluster.h"
 #include "diameter.h"
+#include "xgmml_output.h"
 
 /* Global variables */
 node* nodes = NULL;
@@ -33,6 +35,8 @@ int main(int argc, char* argv[]) {
 	double* scores;
 	int* diameters;
 	int i;
+
+	xmlDocPtr stub = NULL;
 
 	/* parse arguments */
 	if (argc != 5) {
@@ -59,6 +63,8 @@ int main(int argc, char* argv[]) {
 	success = read_data(inputFolder);
 	success = success && init_output_folder(outputFolder);
 
+	success = success && create_xgmml_stub(&stub);
+
 	/* for each cluster, find a solution and save result */
 	for (k = lowerBound; success && k <= upperBound; k++) {
 
@@ -69,7 +75,7 @@ int main(int argc, char* argv[]) {
 
 		success = append_clustering_result(outputFolder, k, score);
 
-		success = success && write_xgmml_file(k);
+		success = success && create_clustering_xgmml(k, stub, outputFolder);
 
 		/* TODO free stuff */
 	}

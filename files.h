@@ -22,7 +22,6 @@ bool read_edges(char* edgesPath);
 bool init_output_folder(char* outputFolder);
 bool append_clustering_result(char* resultsPath, int k, double score);
 bool write_upper_bound_results(char* outputFolder, int upperBound, double weightIn, double weightOut, double* scores, int* diameters);
-bool write_xgmml_file(int k);
 
 /* helper functions */
 bool concat_path(char* dir, char* name, char** path);

@@ -12,5 +12,6 @@
 
 bool create_xgmml_stub(xmlDocPtr* pDoc);
 bool edge_label(int nodeFrom, int nodeTo, char** result);
+bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder);
 
 #endif /* xgmmlFUCK */

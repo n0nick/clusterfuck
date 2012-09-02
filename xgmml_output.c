@@ -11,6 +11,7 @@
 #include "xgmml_output.h"
 #include "consts.h"
 #include "node.h"
+#include "files.h"
 
 bool create_xgmml_stub(xmlDocPtr* pDoc) {
 	extern node* nodes;
@@ -114,6 +115,42 @@ bool edge_label(int nodeFrom, int nodeTo, char** result) {
 	success = (result != NULL);
 
 	success = success && (sprintf(*result, "%s%s%s", nameFrom, sep, nameTo) > 0);
+
+	return success;
+}
+
+bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
+	bool success = TRUE;
+	char* label;
+	char* filename;
+	char* path = NULL;
+
+	label = calloc(sizeof(char), strlen("_clustering_solution") + 8 + 1);
+	success = (label != NULL);
+	success = success && (sprintf(label, "%d_clustering_solution", k) > 0);
+
+	filename = calloc(sizeof(char), strlen(label) + strlen(".xgmml") + 1);
+	success = (filename != NULL);
+	success = success && (sprintf(filename, "%s.xgmml", label) > 0);
+
+	success = success && concat_path(outputFolder, filename, &path);
+
+	if (!success) {
+		goto TERMINATE;
+	}
+
+	/* update root's label */
+    xmlSetProp(xmlDocGetRootElement(stub),BAD_CAST "label", BAD_CAST label);
+
+    /* update clusters data */
+    /*TODO */
+
+    /* save file */
+    xmlSaveFileEnc(path, stub, "UTF-8");
+
+TERMINATE:
+	free(label);
+	free(filename);
 
 	return success;
 }

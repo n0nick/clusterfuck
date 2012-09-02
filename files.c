@@ -300,12 +300,3 @@ void quicksort_scores(double* scores, int* diameters, int N) {
 	quicksort_scores(scores, diameters, i - 1);
 	quicksort_scores(scores + i, diameters + i, N - i);
 }
-
-bool write_xgmml_file(int k) {
-	xmlDocPtr stub = calloc(sizeof(xmlDocPtr), 1);
-
-	create_xgmml_stub(&stub);
-    xmlSaveFileEnc("a.xml", stub, "UTF-8");
-
-	return TRUE;
-}
