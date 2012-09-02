@@ -11,6 +11,7 @@
 #include "consts.h"
 #include "node.h"
 #include "files.h"
+#include "diameter.h"
 
 /* input methods */
 
@@ -185,7 +186,12 @@ bool write_upper_bound_results(char* outputFolder, int upperBound, double weight
 	quicksort_scores(scores, diameters, upperBound);
 
 	for (i=0; (i<upperBound) && success; i++) {
-		fprintf(fp, "Cluster %d: score - %1.3f diameter - %d\n", i+1, scores[i], diameters[i]);
+		fprintf(fp, "Cluster %d: score - %1.3f diameter - ", i+1, scores[i]);
+		if (diameters[i] == INF_DIAMETER) {
+			fprintf(fp, "inf\n");
+		} else {
+			fprintf(fp, "%d\n", diameters[i]);
+		}
 	}
 
 

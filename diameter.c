@@ -61,9 +61,10 @@ int cluster_diameter(int clusterID) {
 	extern node* nodes;
 	extern int nodesCount;
 
-	int i, max, diam;
+	int i, max, diam, count;
 	int* visited = calloc(sizeof(int), nodesCount);
 
+	count = 0;
 	max = node_cluster_diameter(0, visited);
 	for (i = 1; i < nodesCount; i++) {
 		if (nodes[i].clusterID == clusterID) {
@@ -71,7 +72,13 @@ int cluster_diameter(int clusterID) {
 			if (diam > max) {
 				max = diam;
 			}
+			count++;
 		}
 	}
+
+	if (max == 0 && count > 1) {
+		max = INF_DIAMETER;
+	}
+
 	return max;
 }
