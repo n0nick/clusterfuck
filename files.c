@@ -261,6 +261,7 @@ bool split_names(char* names, char* name1, char* name2) {
 	return (strlen(name1) && strlen(name2));
 }
 
+/* TODO move these 2 from files.c */
 void quicksort_cluster_scores(double* scores, int* diameters, int N) {
 	int i, j;
 	double v, tempScore;
@@ -301,7 +302,7 @@ void quicksort_cluster_scores(double* scores, int* diameters, int N) {
 	quicksort_cluster_scores(scores + i, diameters + i, N - i);
 }
 
-void quicksort_cluster_sizes(double* sizes, int* ids, int N) {
+void quicksort_cluster_sizes(int* sizes, int* ids, int N) {
 	int i, j;
 	int v, tempSize, tempId;
 

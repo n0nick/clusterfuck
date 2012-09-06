@@ -28,5 +28,6 @@ bool concat_path(char* dir, char* name, char** path);
 bool file_lines_count(FILE * fp, int* count);
 bool split_names(char* names, char* name1, char* name2);
 void quicksort_cluster_scores(double* scores, int* diameters, int N);
+void quicksort_cluster_sizes(int* sizes, int* ids, int N);
 
 #endif
