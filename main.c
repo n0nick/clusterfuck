@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 
 		success = append_clustering_result(outputFolder, k, score);
 
-		success = success && create_clustering_xgmml(k, stub, outputFolder);
+		success = success && create_cluster_xgmml(k, stub, outputFolder, FALSE);
 
 		/* TODO free stuff */
 	}
@@ -95,6 +95,9 @@ int main(int argc, char* argv[]) {
 
 	/* finish the 'results' file */
 	success = success && write_upper_bound_results(outputFolder, upperBound, weightIn, weightOut, scores, diameters);
+
+	/* create best_clusters file */
+	success = success && create_cluster_xgmml(upperBound, stub, outputFolder, TRUE);
 
 TERMINATE:
 

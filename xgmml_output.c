@@ -13,6 +13,8 @@
 #include "node.h"
 #include "files.h"
 
+#define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
+
 bool create_xgmml_stub(xmlDocPtr* pDoc) {
 	extern node* nodes;
 	extern int nodesCount;
@@ -119,9 +121,11 @@ bool edge_label(int nodeFrom, int nodeTo, char** result) {
 	return success;
 }
 
-bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
+bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, bool best) {
 	extern node* nodes;
 	extern int nodesCount;
+	extern edge* edges;
+	extern int edgesCount;
 
 	bool success = TRUE;
 	char* label;
@@ -134,14 +138,19 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
 
 	char* colorTable[] = {"#00FFFF", "#0000FF", "#8A2BE2", "#A52A2A", "#7FFF00", "#006400", "#FFD700", "#FF69B4", "#FF4500", "#C0C0C0"};
 
-	xmlNodePtr root;
-	xmlNode* currNode;
+	xmlNodePtr root = xmlDocGetRootElement(stub);
+	xmlNode *currNode, *nextNode;
 
 	int i;
 
-	label = calloc(sizeof(char), strlen("_clustering_solution") + 8 + 1);
-	success = (label != NULL);
-	success = success && (sprintf(label, "%d_clustering_solution", k) > 0);
+	if (best) {
+		label = calloc(sizeof(char), strlen("best_clusters") + 1);
+		strcpy(label, "best_clusters");
+	} else {
+		label = calloc(sizeof(char), strlen("_clustering_solution") + 8 + 1);
+		success = (label != NULL);
+		success = success && (sprintf(label, "%d_clustering_solution", k) > 0);
+	}
 
 	filename = calloc(sizeof(char), strlen(label) + strlen(".xgmml") + 1);
 	success = (filename != NULL);
@@ -154,7 +163,6 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
 	}
 
 	/* update root's label */
-	root = xmlDocGetRootElement(stub);
     xmlSetProp(root, BAD_CAST "label", BAD_CAST label);
 
     /* update clusters data */
@@ -168,29 +176,50 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
 		clustersOrdered[clusterIds[i]] = i;
 	}
 
-	for (i=0; i<k; i++) {
-		printf("cluster %d: color %s\n", i, colorTable[clustersOrdered[i]]);
-	}
-
     /* color node elements according to their cluster */
 	currNode = root->children;
 	i=0;
 	while((currNode != NULL) && (i < nodesCount)){
 
+		nextNode = currNode->next;
+
 		if (currNode->type == XML_ELEMENT_NODE) {
 			xmlSetProp(currNode->children, BAD_CAST "fill", BAD_CAST colorTable[clustersOrdered[nodes[i].clusterID < 10 ? nodes[i].clusterID : 9]]);
+
+			/* for best_clusters, remove nodes in small clusters */
+			if (best && (clustersOrdered[nodes[i].clusterID] >= BEST_CLUSTER_THRESHOLD)) {
+				xmlUnlinkNode(currNode);
+				xmlFreeNode(currNode);
+			}
 		}
 
 		i++;
-		currNode = currNode->next;
+		currNode = nextNode;
+	}
+
+	/* for best_clusters, remove edges in small clusters */
+	if (best) {
+		i = 0;
+		while ((currNode != NULL) && (i < edgesCount)){
+
+			if (currNode->type == XML_ELEMENT_NODE) {
+				/* for best_clusters, remove nodes in small clusters */
+				if (MAX(clustersOrdered[nodes[edges[i].nodeFrom].clusterID], clustersOrdered[nodes[edges[i].nodeTo].clusterID]) >= BEST_CLUSTER_THRESHOLD) {
+					xmlUnlinkNode(currNode);
+					xmlFreeNode(currNode);
+				}
+			}
+
+			i++;
+			currNode = currNode->next;
+		}
 	}
 
     /* save file */
     xmlSaveFileEnc(path, stub, "UTF-8");
 
 TERMINATE:
-	xmlUnlinkNode(currNode);
-	xmlFreeNode(currNode);
+	/*TODO free xml objects */
 	free(label);
 	free(filename);
 	free(clusterIds);
