@@ -23,6 +23,8 @@ bool add_node(int index, char* name) {
 
 bool add_edge(int id1, int id2, double weight) {
 	extern node* nodes;
+	extern edge* edges;
+	static int edgesAdded = 0;
 
 	bool valid;
 	node* v1;
@@ -30,6 +32,7 @@ bool add_edge(int id1, int id2, double weight) {
 	edge* currEdge;
 	int printf_result = 0;
 	bool success = TRUE;
+	edge newEdge;
 
 	valid = TRUE;
 
@@ -52,9 +55,12 @@ bool add_edge(int id1, int id2, double weight) {
 
 	if (printf_result >= 0) {
 		if (valid == TRUE) {
-			success = add_one_edge(v1, v2, weight);
+			success = add_one_edge(v1, v2, weight, &newEdge);
 			if (success) {
-				success = add_one_edge(v2, v1, weight);
+
+				edges[edgesAdded++] = newEdge;
+
+				success = add_one_edge(v2, v1, weight, &newEdge);
 				if (success) {
 					/* count edge */
 					v1->degree++;
@@ -70,10 +76,7 @@ bool add_edge(int id1, int id2, double weight) {
 	return success;
 }
 
-bool add_one_edge(node* nodeFrom, node* nodeTo, double weight) {
-	extern edge* edges;
-
-	static int edgesAdded = 0;
+bool add_one_edge(node* nodeFrom, node* nodeTo, double weight, edge* retEdge) {
 
 	edge* currEdge;
 	edge* newEdge;
@@ -101,9 +104,12 @@ bool add_one_edge(node* nodeFrom, node* nodeTo, double weight) {
 	}
 
 	/* add edge to array (only once) */
+	/*
 	if (newEdge->nodeTo < newEdge->nodeFrom) {
 		edges[edgesAdded++] = *newEdge;
 	}
+	*/
+	*retEdge = *newEdge;
 	return TRUE;
 }
 

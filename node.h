@@ -27,7 +27,7 @@ struct node {
 bool add_node(int index, char* name);
 bool add_edge(int id1, int id2, double weight);
 bool remove_edge(node* nodes, int id1, int id2);
-bool add_one_edge(node* nodeFrom, node* nodeTo, double weight);
+bool add_one_edge(node* nodeFrom, node* nodeTo, double weight, edge* retEdge);
 bool remove_one_edge(node* nodeFrom, node* nodeTo, double* removedWeight);
 bool lookup_node(char* name, int* idx);
 bool print_nodes();
