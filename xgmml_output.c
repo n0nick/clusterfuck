@@ -32,7 +32,7 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 		goto TERMINATE;
 	}
 
-	/* craete XML root node */
+	/* create XML root node */
 	root = xmlNewNode(NULL, BAD_CAST "graph");
 	xmlDocSetRootElement(*pDoc, root);
 
@@ -91,7 +91,7 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 
 		/* create child graphic node */
 		node = xmlNewChild(node, NULL, BAD_CAST "graphics", NULL);
-		sprintf(str, "weight = %1.3f", edges[i].weight);
+		sprintf(str, "weight=%1.3f", edges[i].weight);
 		xmlNewProp(node, BAD_CAST "cy:edgeLabel", BAD_CAST str);
 
 	}
@@ -120,6 +120,9 @@ bool edge_label(int nodeFrom, int nodeTo, char** result) {
 }
 
 bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
+	extern node* nodes;
+	extern int nodesCount;
+
 	bool success = TRUE;
 	char* label;
 	char* filename;
@@ -127,6 +130,13 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
 
 	int* clusterIds;
 	int* clusterSizes;
+	int* clustersOrdered;
+
+	char* colorTable[] = {"#00FFFF", "#0000FF", "#8A2BE2", "#A52A2A", "#7FFF00", "#006400", "#FFD700", "#FF69B4", "#FF4500", "#C0C0C0"};
+
+	xmlNodePtr root;
+	xmlNode* currNode;
+	xmlNode* graphics;
 
 	int i;
 
@@ -145,32 +155,67 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
 	}
 
 	/* update root's label */
-    xmlSetProp(xmlDocGetRootElement(stub),BAD_CAST "label", BAD_CAST label);
+	root = xmlDocGetRootElement(stub);
+    xmlSetProp(root, BAD_CAST "label", BAD_CAST label);
 
     /* update clusters data */
+    /* TODO check calloc */
 	clusterIds = calloc(sizeof(int), k);
 	clusterSizes = calloc(sizeof(int), k);
 	clusters_list(k, clusterIds, clusterSizes);
-    /*TODO */
+
+	clustersOrdered = calloc(sizeof(int), k);
 	for (i=0; i<k; i++) {
-		printf("%d %d\n", clusterIds[i], clusterSizes[i]);
+		clustersOrdered[clusterIds[i]] = i;
+	}
+
+	for (i=0; i<k; i++) {
+		printf("cluster %d: color %s\n", i, colorTable[clustersOrdered[i]]);
+	}
+
+    /*TODO */
+	currNode = root->children;
+	i=0;
+	while((currNode != NULL) && (i < nodesCount)){
+
+		if (currNode->type == XML_ELEMENT_NODE) {
+
+			/*int rank = clustersOrdered[i];*/
+			graphics = currNode->children;
+			/*if(rank<upperbound){*/
+			xmlSetProp(graphics, BAD_CAST "fill", BAD_CAST colorTable[clustersOrdered[nodes[i].clusterID < 10 ? nodes[i].clusterID : 9]]);
+			/*}*/
+			/*
+			else
+			{
+				/ * remove all nodes that does not belong to top upperbound clusters
+
+			}
+			*/
+		}
+
+		i++;
+		currNode = currNode->next;
 	}
 
     /* save file */
     xmlSaveFileEnc(path, stub, "UTF-8");
 
 TERMINATE:
+	xmlUnlinkNode(currNode);
+	xmlFreeNode(currNode);
 	free(label);
 	free(filename);
 	free(clusterIds);
 	free(clusterSizes);
+
 
 	return success;
 }
 
 bool clusters_list(int clustersCount, int* clusterIds, int* clusterSizes) {
 	extern node* nodes;
-	extern int nodeCount;
+	extern int nodesCount;
 
 	int i;
 
@@ -187,7 +232,7 @@ bool clusters_list(int clustersCount, int* clusterIds, int* clusterSizes) {
 		clusterSizes[nodes[i].clusterID]++;
 	}
 
-	quicksort_cluster_sizes(sizes, ids, clustersCount);
+	quicksort_cluster_sizes(clusterSizes, clusterIds, clustersCount);
 
 	return TRUE;
 }
