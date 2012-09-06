@@ -136,7 +136,6 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
 
 	xmlNodePtr root;
 	xmlNode* currNode;
-	xmlNode* graphics;
 
 	int i;
 
@@ -173,25 +172,13 @@ bool create_clustering_xgmml(int k, xmlDocPtr stub, char* outputFolder) {
 		printf("cluster %d: color %s\n", i, colorTable[clustersOrdered[i]]);
 	}
 
-    /*TODO */
+    /* color node elements according to their cluster */
 	currNode = root->children;
 	i=0;
 	while((currNode != NULL) && (i < nodesCount)){
 
 		if (currNode->type == XML_ELEMENT_NODE) {
-
-			/*int rank = clustersOrdered[i];*/
-			graphics = currNode->children;
-			/*if(rank<upperbound){*/
-			xmlSetProp(graphics, BAD_CAST "fill", BAD_CAST colorTable[clustersOrdered[nodes[i].clusterID < 10 ? nodes[i].clusterID : 9]]);
-			/*}*/
-			/*
-			else
-			{
-				/ * remove all nodes that does not belong to top upperbound clusters
-
-			}
-			*/
+			xmlSetProp(currNode->children, BAD_CAST "fill", BAD_CAST colorTable[clustersOrdered[nodes[i].clusterID < 10 ? nodes[i].clusterID : 9]]);
 		}
 
 		i++;
