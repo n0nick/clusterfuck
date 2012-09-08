@@ -10,6 +10,8 @@
 #include "queue.h"
 #include "node.h"
 
+#include <stdio.h>
+
 bool node_cluster_diameter(int nodeID, int* visited, int* max) {
 	extern node* nodes;
 	extern int nodesCount;
@@ -23,7 +25,9 @@ bool node_cluster_diameter(int nodeID, int* visited, int* max) {
 	for (i = 0; i < nodesCount; i++) {
 		visited[i] = -1;
 	}
-
+if(nodes[nodeID].clusterID == 2) {
+	printf("hurrrrr");
+}
 	visited[nodeID] = 0;
 	queue_push(&q, nodeID);
 
@@ -33,13 +37,14 @@ bool node_cluster_diameter(int nodeID, int* visited, int* max) {
 		currEdge = nodes[u].edges;
 		while (currEdge != NULL) {
 			v = currEdge->nodeTo;
-			if (v < currEdge->nodeFrom) {
-				if (nodes[v].clusterID == nodes[nodeID].clusterID &&
-						visited[v] == -1) {
+
+			/*if (v < currEdge->nodeFrom) {*/
+				if ((nodes[v].clusterID == nodes[nodeID].clusterID) &&
+						(visited[v] == -1)) {
 					visited[v] = visited[u] + 1;
 					queue_push(&q, v);
 				}
-			}
+			/*}*/
 			currEdge = currEdge->next;
 		}
 	}
@@ -62,16 +67,19 @@ bool cluster_diameter(int clusterID, int* max) {
 	extern int nodesCount;
 
 	bool success = TRUE;
+
 	int i, diam, count;
 	int* visited = calloc(sizeof(int), nodesCount);
+
+	*max = -1;
+
 	if (visited == NULL) {
 		success = FALSE;
 		goto TERMINATE;
 	}
 
 	count = 0;
-	success = success && node_cluster_diameter(0, visited, max);
-	for (i = 1; i < nodesCount; i++) {
+	for (i = 0; success && (i < nodesCount); i++) {
 		if (nodes[i].clusterID == clusterID) {
 			success = success && node_cluster_diameter(i, visited, &diam);
 			if (diam > (*max)) {
