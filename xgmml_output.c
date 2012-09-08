@@ -23,9 +23,10 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 
 	bool success = TRUE;
 
-	xmlNodePtr root;
+	xmlNodePtr root, node;
 	int i;
 	char str[33]; /*TODO magic number */
+	char* label = NULL;
 
 	/*  initiate xml document */
 	*pDoc = xmlNewDoc(BAD_CAST "1.0");
@@ -71,19 +72,14 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 
 	/* create edges list */
 	for (i = 0; i < edgesCount; i++) {
-		char* label = NULL;
-		xmlNodePtr node;
-
 		node = xmlNewChild(root, NULL, BAD_CAST "edge", NULL);
 
 		success = edge_label(edges[i].nodeFrom, edges[i].nodeTo, &label);
 		if (!success) {
-			free(label);
 			goto TERMINATE;
 		}
 
 		xmlNewProp(node, BAD_CAST "label", BAD_CAST label);
-		free(label);
 
 		sprintf(str, "%d", edges[i].nodeFrom + 1);
 		xmlNewProp(node, BAD_CAST "source", BAD_CAST str);
@@ -95,12 +91,12 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 		node = xmlNewChild(node, NULL, BAD_CAST "graphics", NULL);
 		sprintf(str, "weight=%1.3f", edges[i].weight);
 		xmlNewProp(node, BAD_CAST "cy:edgeLabel", BAD_CAST str);
-
 	}
 
 TERMINATE:
 
-/* free stuff */
+	/* free stuff */
+	free(label);
 
 	return success;
 }
@@ -220,6 +216,7 @@ bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, bool best) 
 
 TERMINATE:
 	/*TODO free xml objects */
+	free(path);
 	free(label);
 	free(filename);
 	free(clusterIds);

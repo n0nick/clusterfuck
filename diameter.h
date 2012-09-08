@@ -8,9 +8,11 @@
 #ifndef diameterFUCK
 #define diameterFUCK
 
+#include "consts.h"
+
 #define INF_DIAMETER -1
 
-int node_cluster_diameter(int nodeID, int* visited);
-int cluster_diameter(int clusterID);
+bool node_cluster_diameter(int nodeID, int* visited, int* max);
+bool cluster_diameter(int clusterID, int* max);
 
 #endif /* diameterFUCK */

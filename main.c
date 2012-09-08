@@ -36,6 +36,9 @@ int main(int argc, char* argv[]) {
 	int* diameters;
 	int i;
 
+	edge* currEdge;
+	edge* tmpEdge;
+
 	xmlDocPtr stub = NULL;
 
 	/* parse arguments */
@@ -76,8 +79,6 @@ int main(int argc, char* argv[]) {
 		success = append_clustering_result(outputFolder, k, score);
 
 		success = success && create_cluster_xgmml(k, stub, outputFolder, FALSE);
-
-		/* TODO free stuff */
 	}
 
 	if (!success) {
@@ -89,8 +90,8 @@ int main(int argc, char* argv[]) {
 	success = clustering_statistics(&weightIn, &weightOut, scores);
 
 	diameters = calloc(sizeof(int), upperBound);
-	for(i = 0 ; i<upperBound ;i++) {
-		diameters[i] = cluster_diameter(i);
+	for(i = 0 ; (i<upperBound) && success ;i++) {
+		success = success && cluster_diameter(i, &(diameters[i]));
 	}
 
 	/* finish the 'results' file */
@@ -102,9 +103,19 @@ int main(int argc, char* argv[]) {
 TERMINATE:
 
 	/* TODO free each node's name and edges list */
+	for(i=0; i<nodesCount; i++) {
+		free(nodes[i].name);
+		currEdge = nodes[i].edges;
+		while(currEdge != NULL) {
+			tmpEdge = currEdge->next;
+			free(currEdge);
+			currEdge = tmpEdge;
+		}
+	}
 	free(nodes);
 	free(edges);
 	free(scores);
+	free(diameters);
 
 	return 0;
 }

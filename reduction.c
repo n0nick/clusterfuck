@@ -82,8 +82,8 @@ bool lp_matrix(int k, int **matbeg, int **matcnt, int **matind, double **matval)
     /* allocate memory: scanned */
 	scanned = calloc(sizeof(int), nodesCount * k);
 	if (scanned == NULL) {
-		goto TERMINATE;
 		success = FALSE;
+		goto TERMINATE;
 	}
 
 	/* populating matbeg, matcnt */
