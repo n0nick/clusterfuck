@@ -25,7 +25,7 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 
 	xmlNodePtr root, node;
 	int i;
-	char str[33]; /*TODO magic number */
+	char str[MAX_NODE_ID_LENGTH];
 	char* label = NULL;
 
 	/*  initiate xml document */
@@ -199,7 +199,6 @@ bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, int* cluste
     xmlSaveFileEnc(path, stub, "UTF-8");
 
 TERMINATE:
-	/*TODO free xml objects */
 	free(path);
 	free(label);
 	free(filename);

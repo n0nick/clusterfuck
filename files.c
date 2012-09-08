@@ -183,7 +183,6 @@ bool write_upper_bound_results(char* outputFolder, int upperBound, double weight
 	}
 
 	/* statistics output */
-	/*TODO sort clusters by score */
 	success = (fprintf(fp, "\nClustering statistics for %d:\n", upperBound) > 0);
 	success = success && (fprintf(fp, "Average weight of an edge within clusters: %1.3f\n", weightIn) > 0);
 	success = success && (fprintf(fp, "Average weight of an edge between clusters: %1.3f\n", weightOut) > 0);
