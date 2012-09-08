@@ -9,9 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libxml/tree.h>
+#include "files.h"
 #include "consts.h"
 #include "node.h"
-#include "files.h"
+#include "cluster.h"
 #include "diameter.h"
 #include "xgmml_output.h"
 
@@ -147,7 +148,7 @@ TERMINATE:
 	return success;
 }
 
-bool write_upper_bound_results(char* outputFolder, int upperBound, double weightIn, double weightOut, double* scores, int* diameters) {
+bool write_upper_bound_results(char* outputFolder, int upperBound, double weightIn, double weightOut, double* scores, int* diameters, int* clusterIds) {
 
 	extern node* nodes;
 	extern int nodesCount;
@@ -172,7 +173,7 @@ bool write_upper_bound_results(char* outputFolder, int upperBound, double weight
 	/* nodes list */
 	success = success && (fprintf(fp, "%d vertices:\n", nodesCount) > 0);
 	for (i=0; (i<nodesCount) && success; i++) {
-		success = success && (fprintf(fp, "%d: %s %d\n", i+1, nodes[i].name, nodes[i].clusterID+1));
+		success = success && (fprintf(fp, "%d: %s %d\n", i+1, nodes[i].name, nodes[i].clusterID + 1));
 	}
 
 	/* edges list */
@@ -187,14 +188,12 @@ bool write_upper_bound_results(char* outputFolder, int upperBound, double weight
 	success = success && (fprintf(fp, "Average weight of an edge within clusters: %1.3f\n", weightIn) > 0);
 	success = success && (fprintf(fp, "Average weight of an edge between clusters: %1.3f\n", weightOut) > 0);
 
-	quicksort_cluster_scores(scores, diameters, upperBound);
-
 	for (i=0; (i<upperBound) && success; i++) {
-		fprintf(fp, "Cluster %d: score - %1.3f diameter - ", i+1, scores[i]);
-		if (diameters[i] == INF_DIAMETER) {
+		fprintf(fp, "Cluster %d: score-%1.3f diameter-", i + 1, scores[clusterIds[i]]);
+		if (diameters[clusterIds[i]] == INF_DIAMETER) {
 			fprintf(fp, "inf\n");
 		} else {
-			fprintf(fp, "%d\n", diameters[i]);
+			fprintf(fp, "%d\n", diameters[clusterIds[i]]);
 		}
 	}
 
@@ -270,84 +269,4 @@ bool split_names(char* names, char* name1, char* name2) {
 	name2[i - delimPos - 1] = '\0';
 
 	return (strlen(name1) && strlen(name2));
-}
-
-/* TODO move these 2 from files.c */
-void quicksort_cluster_scores(double* scores, int* diameters, int N) {
-	int i, j;
-	double v, tempScore;
-	int tempDiameter;
-
-	if (N <= 1) {
-		return;
-	}
-
-	v = scores[0];
-	i = 0;
-	j = N;
-	for (;;) {
-		while (scores[++i] > v && i < N) {}
-		while (scores[--j] < v) {}
-		if (i >= j) {
-			break;
-		}
-
-		tempScore = scores[i];
-		scores[i] = scores[j];
-		scores[j] = tempScore;
-
-		tempDiameter = diameters[i];
-		diameters[i] = diameters[j];
-		diameters[j] = tempDiameter;
-	}
-
-	tempScore = scores[i - 1];
-	scores[i - 1] = scores[0];
-	scores[0] = tempScore;
-
-	tempDiameter = diameters[i - 1];
-	diameters[i - 1] = diameters[0];
-	diameters[0] = tempDiameter;
-
-	quicksort_cluster_scores(scores, diameters, i - 1);
-	quicksort_cluster_scores(scores + i, diameters + i, N - i);
-}
-
-void quicksort_cluster_sizes(int* sizes, int* ids, int N) {
-	int i, j;
-	int v, tempSize, tempId;
-
-	if (N <= 1) {
-		return;
-	}
-
-	v = sizes[0];
-	i = 0;
-	j = N;
-	for (;;) {
-		while (sizes[++i] > v && i < N) {}
-		while (sizes[--j] < v) {}
-		if (i >= j) {
-			break;
-		}
-
-		tempSize = sizes[i];
-		sizes[i] = sizes[j];
-		sizes[j] = tempSize;
-
-		tempId = ids[i];
-		ids[i] = ids[j];
-		ids[j] = tempId;
-	}
-
-	tempSize = sizes[i - 1];
-	sizes[i - 1] = sizes[0];
-	sizes[0] = tempSize;
-
-	tempId = ids[i - 1];
-	ids[i - 1] = ids[0];
-	ids[0] = tempId;
-
-	quicksort_cluster_sizes(sizes, ids, i - 1);
-	quicksort_cluster_sizes(sizes + i, ids + i, N - i);
 }

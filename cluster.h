@@ -18,5 +18,7 @@
 /* Include declaration for functions */
 int  k_cluster();
 bool clustering_statistics(double* insideAvg, double* outsideAvg, double* scores);
+void quicksort_cluster_sizes(int* sizes, int* ids, int N);
+bool clusters_list(int clustersCount, int** clusterIds, int** clustersOrdered);
 
 #endif

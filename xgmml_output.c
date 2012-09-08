@@ -40,8 +40,8 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 	xmlDocSetRootElement(*pDoc, root);
 
 	/* set root node's properties */
-	xmlNewProp(root, BAD_CAST "label", BAD_CAST "k_clustering_solution");
 	xmlNewProp(root, BAD_CAST "xmlns:cy", BAD_CAST "http://www.cytoscape.org");
+	xmlNewProp(root, BAD_CAST "label", BAD_CAST "k_clustering_solution");
 	xmlNewProp(root, BAD_CAST "xmlns:dc",
 			BAD_CAST "http://purl.org/dc/elements/1.1/");
 	xmlNewProp(root, BAD_CAST "xmlns:rdf",
@@ -117,7 +117,7 @@ bool edge_label(int nodeFrom, int nodeTo, char** result) {
 	return success;
 }
 
-bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, bool best) {
+bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, int* clustersOrdered, bool best) {
 	extern node* nodes;
 	extern int nodesCount;
 	extern edge* edges;
@@ -127,10 +127,6 @@ bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, bool best) 
 	char* label;
 	char* filename;
 	char* path = NULL;
-
-	int* clusterIds;
-	int* clusterSizes;
-	int* clustersOrdered;
 
 	char* colorTable[] = {"#00FFFF", "#0000FF", "#8A2BE2", "#A52A2A", "#7FFF00", "#006400", "#FFD700", "#FF69B4", "#FF4500", "#C0C0C0"};
 
@@ -161,21 +157,10 @@ bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, bool best) 
 	/* update root's label */
     xmlSetProp(root, BAD_CAST "label", BAD_CAST label);
 
-    /* update clusters data */
-    /* TODO check calloc */
-	clusterIds = calloc(sizeof(int), k);
-	clusterSizes = calloc(sizeof(int), k);
-	clusters_list(k, clusterIds, clusterSizes);
-
-	clustersOrdered = calloc(sizeof(int), k);
-	for (i=0; i<k; i++) {
-		clustersOrdered[clusterIds[i]] = i;
-	}
-
     /* color node elements according to their cluster */
 	currNode = root->children;
 	i=0;
-	while((currNode != NULL) && (i < nodesCount)){
+	while(success && (currNode != NULL) && (i < nodesCount)){
 
 		nextNode = currNode->next;
 
@@ -219,33 +204,7 @@ TERMINATE:
 	free(path);
 	free(label);
 	free(filename);
-	free(clusterIds);
-	free(clusterSizes);
-	free(clustersOrdered);
 
 	return success;
 }
 
-bool clusters_list(int clustersCount, int* clusterIds, int* clusterSizes) {
-	extern node* nodes;
-	extern int nodesCount;
-
-	int i;
-
-	if (clusterIds == NULL || clusterSizes == NULL) {
-		return FALSE;
-	}
-
-	for (i=0; i<clustersCount; i++) {
-		clusterIds[i] = i;
-		clusterSizes[i] = 0;
-	}
-
-	for (i=0; i<nodesCount; i++) {
-		clusterSizes[nodes[i].clusterID]++;
-	}
-
-	quicksort_cluster_sizes(clusterSizes, clusterIds, clustersCount);
-
-	return TRUE;
-}

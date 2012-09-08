@@ -14,7 +14,6 @@
 
 bool create_xgmml_stub(xmlDocPtr* pDoc);
 bool edge_label(int nodeFrom, int nodeTo, char** result);
-bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, bool cluster);
-bool clusters_list(int clustersCount, int* clusterIds, int* clusterSizes);
+bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, int* clustersOrdered, bool best);
 
 #endif /* xgmmlFUCK */

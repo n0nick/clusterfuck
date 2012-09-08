@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
 	double weightIn, weightOut;
 	double* scores;
 	int* diameters;
+	int *clustersOrdered, *clusterIds;
 	int i;
 
 	edge* currEdge;
@@ -76,9 +77,13 @@ int main(int argc, char* argv[]) {
 			goto TERMINATE;
 		}
 
-		success = append_clustering_result(outputFolder, k, score);
-
-		success = success && create_cluster_xgmml(k, stub, outputFolder, FALSE);
+		/* order clusters by size */
+		success = success && clusters_list(k, &clusterIds, &clustersOrdered);
+		success = success && append_clustering_result(outputFolder, k, score);
+		success = success && create_cluster_xgmml(k, stub, outputFolder, clustersOrdered, FALSE);
+		if (k != upperBound) {
+			free(clustersOrdered);
+		}
 	}
 
 	if (!success) {
@@ -95,10 +100,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	/* finish the 'results' file */
-	success = success && write_upper_bound_results(outputFolder, upperBound, weightIn, weightOut, scores, diameters);
+	success = success && write_upper_bound_results(outputFolder, upperBound, weightIn, weightOut, scores, diameters, clusterIds);
 
 	/* create best_clusters file */
-	success = success && create_cluster_xgmml(upperBound, stub, outputFolder, TRUE);
+	success = success && create_cluster_xgmml(upperBound, stub, outputFolder, clustersOrdered, TRUE);
 
 TERMINATE:
 

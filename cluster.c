@@ -282,3 +282,80 @@ bool clustering_statistics(double* insideAvg, double* outsideAvg, double* scores
 
 	return TRUE;
 }
+
+void quicksort_cluster_sizes(int* sizes, int* ids, int N) {
+	int i, j;
+	int v, tempSize, tempId;
+
+	if (N <= 1) {
+		return;
+	}
+
+	v = sizes[0];
+	i = 0;
+	j = N;
+	for (;;) {
+		while (sizes[++i] > v && i < N) {}
+		while (sizes[--j] < v) {}
+		if (i >= j) {
+			break;
+		}
+
+		tempSize = sizes[i];
+		sizes[i] = sizes[j];
+		sizes[j] = tempSize;
+
+		tempId = ids[i];
+		ids[i] = ids[j];
+		ids[j] = tempId;
+	}
+
+	tempSize = sizes[i - 1];
+	sizes[i - 1] = sizes[0];
+	sizes[0] = tempSize;
+
+	tempId = ids[i - 1];
+	ids[i - 1] = ids[0];
+	ids[0] = tempId;
+
+	quicksort_cluster_sizes(sizes, ids, i - 1);
+	quicksort_cluster_sizes(sizes + i, ids + i, N - i);
+}
+
+bool clusters_list(int clustersCount, int** clusterIds, int** clustersOrdered) {
+	extern node* nodes;
+	extern int nodesCount;
+
+	bool success = TRUE;
+	int *clusterSizes;
+	int i;
+
+	(*clusterIds) = calloc(sizeof(int), clustersCount);
+	clusterSizes = calloc(sizeof(int), clustersCount);
+	(*clustersOrdered) = calloc(sizeof(int), clustersCount);
+
+	if (clusterIds == NULL || clusterSizes == NULL || clustersOrdered == NULL) {
+		success = FALSE;
+		goto TERMINATE;
+	}
+
+	for (i=0; i<clustersCount; i++) {
+		(*clusterIds)[i] = i;
+		clusterSizes[i] = 0;
+	}
+
+	for (i=0; i<nodesCount; i++) {
+		clusterSizes[nodes[i].clusterID]++;
+	}
+
+	quicksort_cluster_sizes(clusterSizes, *clusterIds, clustersCount);
+
+	for (i=0; i < clustersCount; i++) {
+		(*clustersOrdered)[(*clusterIds)[i]] = i;
+	}
+
+	TERMINATE:
+	free(clusterSizes);
+
+	return success;
+}
