@@ -107,18 +107,19 @@ int k_cluster(int k, double *score) {
 	 appear on stdout.  */
 
 	if (p_lp == NULL) {
+		status = 1;
 		fprintf(stderr, "Error: Failed to create problem.\n");
 		goto TERMINATE;
 	}
 
 	/* Prepare problem variables */
-	/* TODO check success */
 	numcols = k * (nodesCount + edgesCount);
 	numrows = 3 * edgesCount * k + nodesCount + k;
 
 	coeffs = calloc(sizeof(double), numcols);
 	if (coeffs == NULL) {
-		fprintf(stderr, "Error: Failed to allocate memory to coeffs.\n");
+		status = 1;
+		fprintf(stderr, "Error: Failed to allocate memory for coeffs.\n");
 		goto TERMINATE;
 	}
 	success = success && lp_objective_function_coefficients(k, &coeffs);
@@ -131,10 +132,10 @@ int k_cluster(int k, double *score) {
 	matcnt = calloc(sizeof(int), numcols);
 	matind = calloc(sizeof(int), k * (edgesCount * 7 + nodesCount * 2));
 	matval = calloc(sizeof(double), k * (edgesCount * 7 + nodesCount * 2));
-	if ((matbeg == NULL) || (matcnt == NULL) || (matind == NULL) || (matval
-			== NULL)) {
+	if ((matbeg == NULL) || (matcnt == NULL) || (matind == NULL) || (matval == NULL)) {
+		status = 1;
 		fprintf(stderr,
-				"Error: Failed to allocate memory to the constraints.\n");
+				"Error: Failed to allocate memory for the constraints matrix.\n");
 		goto TERMINATE;
 	}
 	success = success && lp_matrix(k, &matbeg, &matcnt, &matind, &matval);
@@ -142,14 +143,16 @@ int k_cluster(int k, double *score) {
 	lb = calloc(sizeof(double), numcols);
 	ub = calloc(sizeof(double), numcols);
 	if ((lb == NULL) || (ub == NULL)) {
+		status = 1;
 		fprintf(stderr,
-				"Error: Failed to allocate memory to lower/upper bounds.\n");
+				"Error: Failed to allocate memory for lower/upper bounds.\n");
 		goto TERMINATE;
 	}
 	success = success && lp_bounds(numcols, &lb, &ub);
 
 	/* If success is TRUE then ALL preparation stages were executed correctly */
 	if (!success) {
+		status = 1;
 		fprintf(stderr, "Error: Initializing the problems' arrays failed");
 		goto TERMINATE;
 	}
@@ -163,8 +166,7 @@ int k_cluster(int k, double *score) {
 			sense, matbeg, matcnt, matind, matval, lb, ub, NULL);
 
 	if (status) {
-		fprintf(
-				stderr,
+		fprintf(stderr,
 				"Error: Failed to transfer the ILP part of the problem data into the cplex pointer lp.\n");
 		goto TERMINATE;
 	}
