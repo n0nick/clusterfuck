@@ -25,9 +25,7 @@ bool node_cluster_diameter(int nodeID, int* visited, int* max) {
 	for (i = 0; i < nodesCount; i++) {
 		visited[i] = -1;
 	}
-if(nodes[nodeID].clusterID == 2) {
-	printf("hurrrrr");
-}
+
 	visited[nodeID] = 0;
 	queue_push(&q, nodeID);
 
