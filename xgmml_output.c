@@ -224,7 +224,7 @@ TERMINATE:
 	free(filename);
 	free(clusterIds);
 	free(clusterSizes);
-
+	free(clustersOrdered);
 
 	return success;
 }
