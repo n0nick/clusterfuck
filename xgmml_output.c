@@ -13,8 +13,6 @@
 #include "node.h"
 #include "files.h"
 
-#define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
-
 bool create_xgmml_stub(xmlDocPtr* pDoc) {
 	extern node* nodes;
 	extern int nodesCount;
@@ -180,18 +178,21 @@ bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, int* cluste
 	/* for best_clusters, remove edges in small clusters */
 	if (best) {
 		i = 0;
-		while ((currNode != NULL) && (i < edgesCount)){
+		while ((currNode != NULL) && (i < edgesCount)) {
+
+			nextNode = currNode->next;
 
 			if (currNode->type == XML_ELEMENT_NODE) {
 				/* for best_clusters, remove nodes in small clusters */
-				if (MAX(clustersOrdered[nodes[edges[i].nodeFrom].clusterID], clustersOrdered[nodes[edges[i].nodeTo].clusterID]) >= BEST_CLUSTER_THRESHOLD) {
+				if (clustersOrdered[nodes[edges[i].nodeFrom].clusterID] >= BEST_CLUSTER_THRESHOLD ||
+					clustersOrdered[nodes[edges[i].nodeTo].clusterID] >= BEST_CLUSTER_THRESHOLD) {
 					xmlUnlinkNode(currNode);
 					xmlFreeNode(currNode);
 				}
 			}
 
 			i++;
-			currNode = currNode->next;
+			currNode = nextNode;
 		}
 	}
 
