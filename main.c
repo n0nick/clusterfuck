@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 
 TERMINATE:
 
-	/* TODO free each node's name and edges list */
+	/* free each node's name and edges list */
 	for(i=0; i<nodesCount; i++) {
 		free(nodes[i].name);
 		currEdge = nodes[i].edges;
@@ -118,12 +118,15 @@ TERMINATE:
 			currEdge = tmpEdge;
 		}
 	}
+	/* free nodes & edges arrays */
 	free(nodes);
 	free(edges);
+	/* free clustering stats arrays */
 	free(scores);
 	free(diameters);
 	free(clusterIds);
 	free(clustersOrdered);
+	/* free xml document pointers */
 	xmlFreeDoc(stub);
 	xmlCleanupParser();
 	xmlMemoryDump();

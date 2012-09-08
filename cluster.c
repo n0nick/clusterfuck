@@ -66,7 +66,11 @@ int k_cluster(int k, double *score) {
 
 	/* prepare problem name */
 	probname = calloc(sizeof(char), strlen("k_cluster.LP") + 10);
-	/*TODO check calloc success */
+	if (probname == NULL) {
+		status = 1;
+		fprintf(stderr, "Error: Failed to allocate memory for problem name.\n");
+		goto TERMINATE;
+	}
 	sprintf(probname, "k_cluster_%08d.LP", k);
 
 	/* Initialize the CPLEX environment */

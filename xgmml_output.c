@@ -199,7 +199,6 @@ bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, int* cluste
     xmlSaveFileEnc(path, stub, "UTF-8");
 
 TERMINATE:
-	/*TODO free xml objects */
 	free(path);
 	free(label);
 	free(filename);
