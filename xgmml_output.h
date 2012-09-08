@@ -11,6 +11,7 @@
 #include "consts.h"
 
 #define BEST_CLUSTER_THRESHOLD 5
+#define MAX_NODE_ID_LENGTH 10
 
 bool create_xgmml_stub(xmlDocPtr* pDoc);
 bool edge_label(int nodeFrom, int nodeTo, char** result);
