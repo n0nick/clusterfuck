@@ -25,7 +25,7 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 
 	xmlNodePtr root, node;
 	int i;
-	char str[33]; /*TODO magic number */
+	char str[MAX_NODE_ID_LENGTH];
 	char* label = NULL;
 
 	/*  initiate xml document */
