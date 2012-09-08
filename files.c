@@ -56,8 +56,9 @@ bool read_nodes(char* nodesPath) {
 	nodes = calloc(sizeof(node), nodesCount);
 
 	/* Loop through lines, adding nodes */
-	while (fscanf(fp, "protein: %s\n", name) == 1) {
+	while (fscanf(fp, "protein: %s", name) == 1) {
 		add_node(i++, name);
+		fscanf(fp, "\n");
 	}
 
 	return TRUE;
@@ -89,11 +90,12 @@ bool read_edges(char* edgesPath) {
 	edges = calloc(sizeof(edge), edgesCount);
 
 	/* Loop through lines, adding nodes */
-	while (success && (fscanf(fp, "interaction: %s %f\n", names, &weight) == 2)) {
+	while (success && (fscanf(fp, "interaction: %s %f", names, &weight) == 2)) {
 		success = split_names(names, name1, name2);
 		if (success && lookup_node(name1, &idx1) && lookup_node(name2, &idx2)) {
 			success = add_edge(idx1, idx2, weight);
 		}
+		fscanf(fp, "\n");
 	}
 
 	return success;
@@ -223,8 +225,11 @@ bool concat_path(char* dir, char* name, char** path) {
 }
 
 bool file_lines_count(FILE * fp, int* count) {
-	/* TODO rescue file failure */
-	char ch;
+	char ch, last;
+
+	if (fp == NULL) {
+		return FALSE;
+	}
 
 	rewind(fp);
 	ch = getc(fp);
@@ -232,9 +237,15 @@ bool file_lines_count(FILE * fp, int* count) {
 		if (ch == '\n') {
 			(*count)++;
 		}
+		last = ch;
 		ch = getc(fp);
 	}
 	rewind(fp);
+
+	/* last line did not end in newline? */
+	if (last != '\n') {
+		(*count)++;
+	}
 
 	return TRUE;
 }
