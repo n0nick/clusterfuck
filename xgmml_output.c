@@ -91,6 +91,8 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 		node = xmlNewChild(node, NULL, BAD_CAST "graphics", NULL);
 		sprintf(str, "weight=%1.3f", edges[i].weight);
 		xmlNewProp(node, BAD_CAST "cy:edgeLabel", BAD_CAST str);
+
+		free(label);
 	}
 
 TERMINATE:

@@ -82,6 +82,7 @@ int main(int argc, char* argv[]) {
 		success = success && append_clustering_result(outputFolder, k, score);
 		success = success && create_cluster_xgmml(k, stub, outputFolder, clustersOrdered, FALSE);
 		if (k != upperBound) {
+			free(clusterIds);
 			free(clustersOrdered);
 		}
 	}
@@ -121,6 +122,11 @@ TERMINATE:
 	free(edges);
 	free(scores);
 	free(diameters);
+	free(clusterIds);
+	free(clustersOrdered);
+	xmlFreeDoc(stub);
+	xmlCleanupParser();
+	xmlMemoryDump();
 
 	return 0;
 }
