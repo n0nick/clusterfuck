@@ -97,9 +97,6 @@ bool create_xgmml_stub(xmlDocPtr* pDoc) {
 
 TERMINATE:
 
-	/* free stuff */
-	free(label);
-
 	return success;
 }
 

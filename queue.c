@@ -1,17 +1,15 @@
 #include <stdlib.h>
 #include "queue.h"
+#include <stdio.h>
 
 void queue_init(queue *q) {
 	q->count = 0;
 	q->first = 0;
+	q->values = NULL;
 }
 
 void queue_push(queue *q, int x) {
-	if (q->count == 0 && q->first == 0) {
-		q->values = calloc(sizeof(int), 1);
-	} else {
-		q->values = (int*) realloc(q->values, q->count + q->first + 1);
-	}
+	q->values = (int*) realloc(q->values, sizeof(int) * (q->count + q->first + 1));
 	q->values[q->count + q->first] = x;
 	q->count++;
 }
