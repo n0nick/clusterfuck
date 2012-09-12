@@ -93,6 +93,11 @@ int main(int argc, char* argv[]) {
 		goto TERMINATE;
 	}
 
+	/* handle case where upper bound is too high */
+	if (upperBound > nodesCount) {
+		upperBound = nodesCount;
+	}
+
 	/* calculate statistic values */
 	scores = calloc(sizeof(double), upperBound);
 	success = clustering_statistics(&weightIn, &weightOut, scores);
