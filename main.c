@@ -80,7 +80,9 @@ int main(int argc, char* argv[]) {
 		/* order clusters by size */
 		success = success && clusters_list(k, &clusterIds, &clustersOrdered);
 		success = success && append_clustering_result(outputFolder, k, score);
-		success = success && create_cluster_xgmml(k, stub, outputFolder, clustersOrdered, FALSE);
+		if (k <= nodesCount) {
+			success = success && create_cluster_xgmml(k, stub, outputFolder, clustersOrdered, FALSE);
+		}
 		if (k != upperBound) {
 			free(clusterIds);
 			free(clustersOrdered);
