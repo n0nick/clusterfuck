@@ -21,6 +21,9 @@ kcluster
 
 # App data
 data
+example
+test
+yeast
 
 # CPLEX generated logs
 cplex.log
