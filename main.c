@@ -44,9 +44,8 @@ int main(int argc, char* argv[]) {
 
 	/* parse arguments */
 	if (argc != 5) {
-		perror(
-				"Usage: kcluster <inputFolder> <outputFolder> <lowerBound> <upperBound>\n");
-		return 1;
+		perror("Usage: kcluster <inputFolder> <outputFolder> <lowerBound> <upperBound>\n");
+		goto TERMINATE;
 	}
 	inputFolder = argv[1];
 	outputFolder = argv[2];
@@ -56,16 +55,22 @@ int main(int argc, char* argv[]) {
 	/* validate arguments */
 	if (lowerBound == 0 || upperBound == 0) {
 		perror("Error: cluster size bounds should be positive integers.\n");
-		return 1;
+		goto TERMINATE;
 	}
 	if (lowerBound > upperBound) {
 		perror("Error: lower bound should be lower than upper bound.\n");
-		return 1;
+		goto TERMINATE;
 	}
 
-	/* reading input and initializing output folder */
+	/* read input */
 	success = read_data(inputFolder);
-	success = success && init_output_folder(outputFolder);
+	if (!success) {
+		perror("Error: could not read data in input folder.\n");
+		goto TERMINATE_NODES;
+	}
+
+	/* initialize output folder */
+	success = init_output_folder(outputFolder);
 
 	success = success && create_xgmml_stub(&stub);
 
@@ -74,7 +79,7 @@ int main(int argc, char* argv[]) {
 
 		if ( k_cluster(k, &score, outputFolder) ) { /* k_cluster() failed */
 			success = FALSE;
-			goto TERMINATE;
+			goto TERMINATE_STATS;
 		}
 
 		/* order clusters by size */
@@ -90,7 +95,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (!success) {
-		goto TERMINATE;
+		goto TERMINATE_STATS;
 	}
 
 	/* handle case where upper bound is too high */
@@ -113,8 +118,18 @@ int main(int argc, char* argv[]) {
 	/* create best_clusters file */
 	success = success && create_cluster_xgmml(upperBound, stub, outputFolder, clustersOrdered, TRUE);
 
-TERMINATE:
+TERMINATE_STATS:
+	/* free clustering stats arrays */
+	free(scores);
+	free(diameters);
+	free(clusterIds);
+	free(clustersOrdered);
+	/* free xml document pointers */
+	xmlFreeDoc(stub);
+	xmlCleanupParser();
+	xmlMemoryDump();
 
+TERMINATE_NODES:
 	/* free each node's name and edges list */
 	for(i=0; i<nodesCount; i++) {
 		free(nodes[i].name);
@@ -125,18 +140,11 @@ TERMINATE:
 			currEdge = tmpEdge;
 		}
 	}
+
+TERMINATE:
 	/* free nodes & edges arrays */
 	free(nodes);
 	free(edges);
-	/* free clustering stats arrays */
-	free(scores);
-	free(diameters);
-	free(clusterIds);
-	free(clustersOrdered);
-	/* free xml document pointers */
-	xmlFreeDoc(stub);
-	xmlCleanupParser();
-	xmlMemoryDump();
 
 	return 0;
 }
