@@ -331,37 +331,61 @@ void quicksort_cluster_sizes(int* sizes, int* ids, int N) {
 bool clusters_list(int clustersCount, int** clusterIds, int** clustersOrdered) {
 	extern node* nodes;
 	extern int nodesCount;
+	extern edge* edges;
+	extern int edgesCount;
 
 	bool success = TRUE;
-	int *clusterSizes;
+	cluster* clusters;
 	int i;
 
 	(*clusterIds) = calloc(sizeof(int), clustersCount);
-	clusterSizes = calloc(sizeof(int), clustersCount);
 	(*clustersOrdered) = calloc(sizeof(int), clustersCount);
+	clusters = calloc(sizeof(cluster), clustersCount);
 
-	if (clusterIds == NULL || clusterSizes == NULL || clustersOrdered == NULL) {
+	if (clusterIds == NULL || clusters == NULL || clustersOrdered == NULL) {
 		success = FALSE;
 		goto TERMINATE;
 	}
 
-	for (i=0; i<clustersCount; i++) {
-		(*clusterIds)[i] = i;
-		clusterSizes[i] = 0;
-	}
-
-	for (i=0; i<nodesCount; i++) {
-		clusterSizes[nodes[i].clusterID]++;
-	}
-
-	quicksort_cluster_sizes(clusterSizes, *clusterIds, clustersCount);
-
+	/* prepare clusters array */
 	for (i=0; i < clustersCount; i++) {
-		(*clustersOrdered)[(*clusterIds)[i]] = i;
+		clusters[i].id = i;
+		clusters[i].size = 0;
+		clusters[i].score = 0;
+	}
+
+	/* count clusters' sizes */
+	for (i=0; i<nodesCount; i++) {
+		clusters[nodes[i].clusterID].size++;
+	}
+
+	/* count clusters' scores */
+	/*TODO if we do this here, don't do this somewhere else */
+	for (i=0; i<edgesCount; i++) {
+		if (nodes[edges[i].nodeFrom].clusterID == nodes[edges[i].nodeTo].clusterID) {
+			clusters[nodes[edges[i].nodeFrom].clusterID].score+= edges[i].weight;
+		}
+	}
+
+	/* sort clusters by size */
+	qsort(clusters, clustersCount, sizeof(cluster), cluster_size_comparator);
+
+	/* prepare clusterIds, clustersOrdered arrays */
+	for (i=0; i < clustersCount; i++) {
+		(*clustersOrdered)[clusters[i].id] = i;
+		(*clusterIds)[i] = clusters[i].id;
 	}
 
 	TERMINATE:
-	free(clusterSizes);
+	free(clusters);
 
 	return success;
 }
+
+int cluster_size_comparator(const void * a, const void * b) {
+	cluster* c1 = (cluster*) a;
+	cluster* c2 = (cluster*) b;
+
+	return ( c2->size - c1->size );
+}
+

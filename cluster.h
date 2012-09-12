@@ -15,10 +15,19 @@
 
 #include "consts.h"
 
+typedef struct cluster cluster;
+
+struct cluster {
+	int id;
+	int size;
+	double score;
+};
+
 /* Include declaration for functions */
 int  k_cluster();
 bool clustering_statistics(double* insideAvg, double* outsideAvg, double* scores);
 void quicksort_cluster_sizes(int* sizes, int* ids, int N);
 bool clusters_list(int clustersCount, int** clusterIds, int** clustersOrdered);
+int cluster_size_comparator(const void * a, const void * b);
 
 #endif
