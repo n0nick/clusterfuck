@@ -69,6 +69,11 @@ int main(int argc, char* argv[]) {
 		goto TERMINATE_NODES;
 	}
 
+	if (lowerBound > nodesCount) {
+		perror("Error: lower bound should be lower than nodes count.\n");
+		goto TERMINATE_NODES;
+	}
+
 	/* initialize output folder */
 	success = init_output_folder(outputFolder);
 
