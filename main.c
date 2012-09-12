@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 	/* for each cluster, find a solution and save result */
 	for (k = lowerBound; success && k <= upperBound; k++) {
 
-		if ( k_cluster(k, &score) ) { /* k_cluster() failed */
+		if ( k_cluster(k, &score, outputFolder) ) { /* k_cluster() failed */
 			success = FALSE;
 			goto TERMINATE;
 		}

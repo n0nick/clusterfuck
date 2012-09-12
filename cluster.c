@@ -25,7 +25,7 @@
  Read solution (both objective function value and variables assignment).
  Communicate to pass the problem and the solution between the modules in the best way you see.
  */
-int k_cluster(int k, double *score) {
+int k_cluster(int k, double *score, char* outputFolder) {
 	extern int nodesCount;
 	extern int edgesCount;
 
@@ -65,13 +65,13 @@ int k_cluster(int k, double *score) {
 	int i;
 
 	/* prepare problem name */
-	probname = calloc(sizeof(char), strlen("k_cluster.LP") + 10);
+	probname = calloc(sizeof(char), strlen(outputFolder) + strlen("k_cluster.LP") + 10);
 	if (probname == NULL) {
 		status = 1;
 		fprintf(stderr, "Error: Failed to allocate memory for problem name.\n");
 		goto TERMINATE;
 	}
-	sprintf(probname, "k_cluster_%08d.LP", k);
+	sprintf(probname, "%sk_cluster_%08d.LP", outputFolder, k);
 
 	/* Initialize the CPLEX environment */
 	p_env = CPXopenCPLEX(&status);
