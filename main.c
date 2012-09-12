@@ -45,6 +45,7 @@ int main(int argc, char* argv[]) {
 	/* parse arguments */
 	if (argc != 5) {
 		perror("Usage: kcluster <inputFolder> <outputFolder> <lowerBound> <upperBound>\n");
+		success = FALSE;
 		goto TERMINATE;
 	}
 	inputFolder = argv[1];
@@ -55,10 +56,12 @@ int main(int argc, char* argv[]) {
 	/* validate arguments */
 	if (lowerBound == 0 || upperBound == 0) {
 		perror("Error: cluster size bounds should be positive integers.\n");
+		success = FALSE;
 		goto TERMINATE;
 	}
 	if (lowerBound > upperBound) {
 		perror("Error: lower bound should be lower than upper bound.\n");
+		success = FALSE;
 		goto TERMINATE;
 	}
 
@@ -71,6 +74,7 @@ int main(int argc, char* argv[]) {
 
 	if (lowerBound > nodesCount) {
 		perror("Error: lower bound should be lower than nodes count.\n");
+		success = FALSE;
 		goto TERMINATE_NODES;
 	}
 
@@ -151,5 +155,5 @@ TERMINATE:
 	free(nodes);
 	free(edges);
 
-	return 0;
+	return !success;
 }
