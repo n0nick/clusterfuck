@@ -39,6 +39,7 @@ bool read_nodes(char* nodesPath) {
 	extern node* nodes;
 	extern int nodesCount;
 
+	bool success = TRUE;
 	FILE * fp;
 	int i = 0;
 	char name[MAX_LINE_LENGTH];
@@ -57,12 +58,12 @@ bool read_nodes(char* nodesPath) {
 	nodes = calloc(sizeof(node), nodesCount);
 
 	/* Loop through lines, adding nodes */
-	while (fscanf(fp, "protein: %s", name) == 1) {
-		add_node(i++, name);
+	while (success && (fscanf(fp, "protein: %s", name) == 1)) {
+		success = success && add_node(i++, name);
 		fscanf(fp, "\n");
 	}
 
-	return TRUE;
+	return success;
 }
 bool read_edges(char* edgesPath) {
 	extern edge* edges;
