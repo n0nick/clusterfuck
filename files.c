@@ -125,6 +125,8 @@ TERMINATE:
 }
 
 bool append_clustering_result(char* outputFolder, int k, double score) {
+	extern int nodesCount;
+
 	bool success = TRUE;
 	char* resultsPath;
 	FILE * fp;
@@ -137,9 +139,16 @@ bool append_clustering_result(char* outputFolder, int k, double score) {
 		goto TERMINATE;
 	}
 
-	if (fprintf(fp, "Clustering with k=%d: %1.3f\n", k, score) < 0) {
-		success = FALSE;
-		goto TERMINATE;
+	if (k > nodesCount) { /* infeasible clustering */
+		if (fprintf(fp, "Clustering with k=%d: infeasible\n", k) < 0) {
+			success = FALSE;
+			goto TERMINATE;
+		}
+	} else {
+		if (fprintf(fp, "Clustering with k=%d: %1.3f\n", k, score) < 0) {
+			success = FALSE;
+			goto TERMINATE;
+		}
 	}
 
 TERMINATE:
