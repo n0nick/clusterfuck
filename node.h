@@ -1,5 +1,5 @@
-#ifndef nodeFUCK
-#define nodeFUCK
+#ifndef nodeEX3
+#define nodeEX3
 
 #include "consts.h"
 

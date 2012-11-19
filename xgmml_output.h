@@ -5,8 +5,8 @@
  *      Author: amirmoua
  */
 
-#ifndef xgmmlFUCK
-#define xgmmlFUCK
+#ifndef xgmmlEX3
+#define xgmmlEX3
 
 #include "consts.h"
 
@@ -17,4 +17,4 @@ bool create_xgmml_stub(xmlDocPtr* pDoc);
 bool edge_label(int nodeFrom, int nodeTo, char** result);
 bool create_cluster_xgmml(int k, xmlDocPtr stub, char* outputFolder, int* clustersOrdered, bool best);
 
-#endif /* xgmmlFUCK */
+#endif /* xgmmlEX3 */

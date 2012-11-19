@@ -5,8 +5,8 @@
  *      Author: amirmoua
  */
 
-#ifndef filesFUCK
-#define filesFUCK
+#ifndef filesEX3
+#define filesEX3
 
 #include "consts.h"
 

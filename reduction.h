@@ -1,5 +1,5 @@
-#ifndef reductionFUCK
-#define reductionFUCK
+#ifndef reductionEX3
+#define reductionEX3
 
 #include "consts.h"
 

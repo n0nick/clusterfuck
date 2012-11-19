@@ -5,8 +5,8 @@
  *      Author: sagiemao
  */
 
-#ifndef diameterFUCK
-#define diameterFUCK
+#ifndef diameterEX3
+#define diameterEX3
 
 #include "consts.h"
 
@@ -15,4 +15,4 @@
 bool node_cluster_diameter(int nodeID, int* visited, int* max);
 bool cluster_diameter(int clusterID, int* max);
 
-#endif /* diameterFUCK */
+#endif /* diameterEX3 */

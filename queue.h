@@ -5,8 +5,8 @@
  *      Author: sagiemao
  */
 
-#ifndef queueFUCK
-#define queueFUCK
+#ifndef queueEX3
+#define queueEX3
 
 typedef struct queue queue;
 
@@ -22,4 +22,4 @@ void queue_push(queue *q, int x);
 int queue_pop(queue *q);
 void queue_free(queue *q);
 
-#endif /* queueFUCK */
+#endif /* queueEX3 */
